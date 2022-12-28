@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "VariableAnnuity": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\variable_annuity\\InsuranceValuation\\src\\VariableAnnuity\\params\\model_config_LifePayPlus.json"
+    }
+  }
+}

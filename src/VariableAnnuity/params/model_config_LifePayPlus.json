@@ -1,0 +1,36 @@
+{
+	"Paths":
+	{
+		"output_file": "D:\\variable_annuity\\output\\output.csv"
+	},
+	"model_assumptions": 
+	{
+		"Product": "ING LifePay Plus Base",
+		"Step-Up": "6%",
+		"Step-Up Period (Contract Years)": 10,
+		"Initial Premium": 100000,
+		"Starting Age": 60,
+		"First Withdrawl Age": 70,
+		"Annuity CommencementDate/Age": 80,
+		"Last Death Age": 100,
+		"Mortality" : "0.5%",
+		"Withdrawl Rate": "3%",
+		"Fixed Allocation Funds Automatic Rebalancing Target": "20%",
+		"M&E": "1.4%",
+		"Fund Fees": "0.15%",
+		"Risk Free Rate": "3%",
+		"Volatility": "16%",
+		"Maximum Annual Withdrawl":
+		{
+			"59.5": "4%",
+			"65": "5%",
+			"76": "6%",
+			"80": "7%"
+		},
+	}
+}
+
+			
+			
+			
+	
