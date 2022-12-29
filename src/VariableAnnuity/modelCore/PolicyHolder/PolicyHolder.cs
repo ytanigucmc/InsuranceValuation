@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal class PolicyHolder: BasePolicyHolder
+    public class PolicyHolder: BasePolicyHolder
     {
         public PolicyHolder(double age):base(age)
         {

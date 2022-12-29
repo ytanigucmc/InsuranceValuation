@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal abstract class BaseUnivariateMortalityTable: IUnivariateMortalityTable
+    public abstract class BaseUnivariateMortalityTable: IUnivariateMortalityTable
     {
         public abstract double GetMortalityRate(double age);
     }

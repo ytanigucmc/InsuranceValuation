@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal abstract class BaseFundsPortfolio: IFundsPortfolio
+    public abstract class BaseFundsPortfolio: IFundsPortfolio
     {
 
         protected List<BaseFund> Funds;

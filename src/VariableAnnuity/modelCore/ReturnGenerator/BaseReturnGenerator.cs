@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal abstract class BaseReturnGenerator: IReturnGenerator
+    public abstract class BaseReturnGenerator: IReturnGenerator
     {    
         public abstract double GetReturn();
     }

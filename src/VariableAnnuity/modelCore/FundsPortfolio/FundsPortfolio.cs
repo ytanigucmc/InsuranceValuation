@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal class FundsPortfolio : BaseFundsPortfolio
+    public class FundsPortfolio : BaseFundsPortfolio
     {
         public FundsPortfolio(List<BaseFund> funds) : base(funds)
         {

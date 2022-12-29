@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal abstract class BaseRandomNumberGenerator : IRandomNumberGenerator
+    public abstract class BaseRandomNumberGenerator : IRandomNumberGenerator
     {
         public abstract double GetRandom();
     }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal class ConstantUnivariateMortalityTable: BaseUnivariateMortalityTable
+    public class ConstantUnivariateMortalityTable: BaseUnivariateMortalityTable
     {
         double FixedMortalityRate;
         public ConstantUnivariateMortalityTable(double fixedRate)
@@ -20,7 +20,7 @@ namespace VariableAnnuity
         }
     }
 
-    internal class PiecewiseConstantUnivariateMortalityTable : BaseUnivariateMortalityTable
+    public class PiecewiseConstantUnivariateMortalityTable : BaseUnivariateMortalityTable
     {
         IInterpolation MortalityTableInterpolator;
         public PiecewiseConstantUnivariateMortalityTable(Double[] ages, Double[] mortalityRates)

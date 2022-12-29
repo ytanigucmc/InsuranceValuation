@@ -7,7 +7,7 @@ using MathNet.Numerics.Distributions;
 
 namespace VariableAnnuity
 {
-    internal class RandomNormalGenerator: BaseRandomNumberGenerator
+    public class RandomNormalGenerator: BaseRandomNumberGenerator
 
     {
         public override double GetRandom()
