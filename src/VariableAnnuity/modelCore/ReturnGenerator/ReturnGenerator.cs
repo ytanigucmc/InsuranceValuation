@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal class FixedReturnGenerator: BaseReturnGenerator
+    public class FixedReturnGenerator: BaseReturnGenerator
     {
         private double FixedReturn;
 
@@ -21,7 +21,7 @@ namespace VariableAnnuity
         }
     }
 
-    internal class CustomLogNormalReturnCalculator : BaseReturnGenerator
+    public class CustomLogNormalReturnCalculator : BaseReturnGenerator
     {
         protected double Drift;
         protected double Volatility;
@@ -49,7 +49,7 @@ namespace VariableAnnuity
         }
     }
 
-    internal class ReturnCalculatorFromList : BaseReturnGenerator
+    public class ReturnCalculatorFromList : BaseReturnGenerator
     {
         private Queue<double> Returns;
         public ReturnCalculatorFromList(List<double> returns)

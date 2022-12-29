@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal abstract class BasePolicyHolder: IPolicyHolder
+    public abstract class BasePolicyHolder: IPolicyHolder
     {
         protected double Age;
         public BasePolicyHolder(double age)

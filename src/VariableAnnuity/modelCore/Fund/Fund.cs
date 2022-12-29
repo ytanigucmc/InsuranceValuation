@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal abstract class Fund : BaseFund
+    public abstract class Fund : BaseFund
     {
         protected BaseReturnGenerator PercentageReturnGenerator;
 
