@@ -7,29 +7,29 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    public class ConstantUnivariateMortalityTable: BaseUnivariateMortalityTable
+    public class ConstantMortalityTable: BaseMortalityTable
     {
         double FixedMortalityRate;
-        public ConstantUnivariateMortalityTable(double fixedRate)
+        public ConstantMortalityTable(double fixedRate)
         {
             FixedMortalityRate = fixedRate;
         }
-        public override double GetMortalityRate(double x)
+        public override double GetMortalityRate(BasePolicyHolder holder)
         {
             return FixedMortalityRate;
         }
     }
 
-    public class PiecewiseConstantUnivariateMortalityTable : BaseUnivariateMortalityTable
+    public class PiecewiseConstantAgeBasedMortalityTable : BaseMortalityTable
     {
         IInterpolation MortalityTableInterpolator;
-        public PiecewiseConstantUnivariateMortalityTable(Double[] ages, Double[] mortalityRates)
+        public PiecewiseConstantAgeBasedMortalityTable(Double[] ages, Double[] mortalityRates)
         {
             MortalityTableInterpolator = new StepInterpolation(ages, mortalityRates);
         }
-        public override double GetMortalityRate(double x)
+        public override double GetMortalityRate(BasePolicyHolder holder)
         {
-            return MortalityTableInterpolator.Interpolate(x);
+            return MortalityTableInterpolator.Interpolate(holder.GetAge());
         }
     }
 }

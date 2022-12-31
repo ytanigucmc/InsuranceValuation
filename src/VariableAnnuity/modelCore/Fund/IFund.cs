@@ -8,14 +8,15 @@ namespace VariableAnnuity
 {
     internal interface IFund
     {
+        string GetFundNme();
         double GetFundAmount();
         void SetFundAmount(double amount);
         void GrowFund();
-        void AddAmount(double amount);
+        void AddDollarAmount(double amount);
         void AddAmountByPercentage(double amountPercentage);
-        void DeductAmount(double amount);
+        void DeducDollartAmount(double amount);
 
-        void DeducAmountByPercentage(double amountPercentage);
+        void DeductPercentageAmount(double amountPercentage);
 
     }
 }

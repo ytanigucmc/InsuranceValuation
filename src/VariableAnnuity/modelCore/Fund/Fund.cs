@@ -10,9 +10,14 @@ namespace VariableAnnuity
     {
         protected BaseReturnGenerator PercentageReturnGenerator;
 
-        public Fund(double startAmount, BaseReturnGenerator perentageReturnGenerator): base(startAmount)
+        public Fund(string fundName, double startAmount, BaseReturnGenerator perentageReturnGenerator): base(fundName, startAmount)
         {
             PercentageReturnGenerator = perentageReturnGenerator;
+        }
+
+        public override string GetFundName()
+        {
+            return FundName;
         }
 
         public override double GetFundAmount()
@@ -30,24 +35,24 @@ namespace VariableAnnuity
             AddAmountByPercentage(PercentageReturnGenerator.GetReturn());
         }
 
-        public override void AddAmount(double amount)
+        public override void AddDollarAmount(double amount)
         {
             FundAmount += amount;
             FundAmount = Math.Max(0, FundAmount);
         }
         public override void AddAmountByPercentage(double percentageAmount)
         {
-            AddAmount(percentageAmount * FundAmount);
+            AddDollarAmount(percentageAmount * FundAmount);
         }
 
-        public override void DeductAmount(double amount)
+        public override void DeducDollartAmount(double amount)
         {
-            AddAmount(-amount);
+            AddDollarAmount(-amount);
         }
 
-        public override void DeducAmountByPercentage(double percentageAmount)
+        public override void DeductPercentageAmount(double percentageAmount)
         {
-            DeductAmount(-percentageAmount * FundAmount);
+            DeducDollartAmount(-percentageAmount * FundAmount);
         }
 
     }

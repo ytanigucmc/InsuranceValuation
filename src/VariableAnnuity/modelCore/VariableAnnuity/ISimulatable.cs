@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal interface IUnivariateMortalityTable
+    internal interface ISimulatable
     {
-        double GetMortalityRate(double age);
+        void AdvanceYear(List<Dictionary<string, dynamic>> cashFlowRecords);
     }
 }

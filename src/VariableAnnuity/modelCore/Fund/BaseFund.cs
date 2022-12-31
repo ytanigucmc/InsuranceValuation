@@ -9,25 +9,29 @@ namespace VariableAnnuity
 {
     public abstract class BaseFund: IFund
     {
+        protected string FundName;
+
         protected double FundAmount;
 
-        public BaseFund(double startAmount)
+        public BaseFund(string fundName, double startAmount)
         {
             if (startAmount < 0) 
             {
                 throw new ArgumentException("Start amount of Fund must be non-negative.");
             }
+            FundName = fundName;
             FundAmount = startAmount;
         }
 
         public abstract double GetFundAmount();
+        public abstract string GetFundName();
         public abstract void GrowFund();
         public abstract void SetFundAmount(double amount);
 
-        public abstract void AddAmount(double amount);
+        public abstract void AddDollarAmount(double amount);
         public abstract void AddAmountByPercentage(double percentageAmount);
-        public abstract void DeductAmount(double amount);
-        public abstract void DeducAmountByPercentage(double percentageAmount);
+        public abstract void DeducDollartAmount(double amount);
+        public abstract void DeductPercentageAmount(double percentageAmount);
 
     }
 }

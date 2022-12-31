@@ -8,20 +8,10 @@ namespace VariableAnnuity
 {
     public class FundsPortfolio : BaseFundsPortfolio
     {
-        public FundsPortfolio(List<BaseFund> funds) : base(funds)
+        public FundsPortfolio(string portfolioName, List<BaseFund> funds) : base(portfolioName, funds)
         {
         }
 
-        public override double GetPortfolioAmount()
-        {
-            double sum = 0;
-            GetFundsAmounts().ForEach(x => sum += x);
-            return sum;
-        }
-        public override List<double> GetFundsAmounts()
-        {
-            return (from fund in Funds select fund.GetFundAmount()).ToList();
-        }
 
         public override List<double> GetPortfolioWeights()
         {
@@ -36,16 +26,16 @@ namespace VariableAnnuity
                 fund.GrowFund();
             }
         }
-        public override void AddAmount(double amount)
+        public override void AddDollarAmount(double amount)
         {
             List<double> portWeights = GetPortfolioWeights();
             var funds_and_weights = Funds.Zip(portWeights, (fund, weight) => (fund, weight));
             foreach (var fw in funds_and_weights)
             {
-                fw.fund.AddAmount(fw.weight * amount);
+                fw.fund.AddDollarAmount(fw.weight * amount);
             }
         }
-        public override void AddAmountByPercentage(double amountPercentage)
+        public override void AddPercentageAmount(double amountPercentage)
         {
             foreach(BaseFund fun in Funds)
             {
@@ -53,13 +43,13 @@ namespace VariableAnnuity
             }
           
         }
-        public override void DeductAmount(double amount)
+        public override void DeductDollarAmount(double amount)
         {
-            AddAmount(-amount);
+            AddDollarAmount(-amount);
         }
-        public override void DeductAmountByPercentage(double amountPercentage)
+        public override void DeductPercentageAmount(double amountPercentage)
         {
-            AddAmountByPercentage(-amountPercentage);
+            AddPercentageAmount(-amountPercentage);
         }
 
         public override void Rebalance(List<double> weights)
