@@ -8,6 +8,6 @@ namespace VariableAnnuity
 {
     internal interface IWithdrawMadeHandlable
     {
-        void OnWithdrawMade(double withdrawAmount);
+        void OnWithdrawMade(object source, DollarAmountEventArgs args);
     }
 }
