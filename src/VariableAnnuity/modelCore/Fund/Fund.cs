@@ -6,53 +6,25 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    public abstract class Fund : BaseFund
+    public abstract class Fund : MoneyAccount, IFund
     {
+        public string FundName;
         protected BaseReturnGenerator PercentageReturnGenerator;
 
-        public Fund(string fundName, double startAmount, BaseReturnGenerator perentageReturnGenerator): base(fundName, startAmount)
+        public Fund(string fundName, double startAmount, BaseReturnGenerator perentageReturnGenerator): base(startAmount)
         {
+            FundName = fundName;
             PercentageReturnGenerator = perentageReturnGenerator;
         }
 
-        public override string GetFundName()
+        public string GetFundName()
         {
             return FundName;
         }
 
-        public override double GetFundAmount()
-        {
-            return FundAmount;
-        }
-
-        public override void SetFundAmount(double amount)
-        {
-            FundAmount = amount;
-        }
-
-        public override void GrowFund()
+        public void GrowFund()
         {
             AddAmountByPercentage(PercentageReturnGenerator.GetReturn());
-        }
-
-        public override void AddDollarAmount(double amount)
-        {
-            FundAmount += amount;
-            FundAmount = Math.Max(0, FundAmount);
-        }
-        public override void AddAmountByPercentage(double percentageAmount)
-        {
-            AddDollarAmount(percentageAmount * FundAmount);
-        }
-
-        public override void DeducDollartAmount(double amount)
-        {
-            AddDollarAmount(-amount);
-        }
-
-        public override void DeductPercentageAmount(double percentageAmount)
-        {
-            DeducDollartAmount(-percentageAmount * FundAmount);
         }
 
     }

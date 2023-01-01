@@ -8,7 +8,7 @@ namespace VariableAnnuity
 {
     public class FundsPortfolio : BaseFundsPortfolio
     {
-        public FundsPortfolio(string portfolioName, List<BaseFund> funds) : base(portfolioName, funds)
+        public FundsPortfolio(string portfolioName, List<IFund> funds) : base(portfolioName, funds)
         {
         }
 
@@ -21,7 +21,7 @@ namespace VariableAnnuity
 
         public override void GrowFunds()
         {
-            foreach (BaseFund fund in Funds)
+            foreach (IFund fund in Funds)
             {
                 fund.GrowFund();
             }
@@ -37,7 +37,7 @@ namespace VariableAnnuity
         }
         public override void AddPercentageAmount(double amountPercentage)
         {
-            foreach(BaseFund fun in Funds)
+            foreach(IFund fun in Funds)
             {
                 fun.AddAmountByPercentage(amountPercentage);
             }
@@ -54,11 +54,15 @@ namespace VariableAnnuity
 
         public override void Rebalance(List<double> weights)
         {
+            if (Funds.Count != weights.Count)
+            {
+                throw new Exception("Number of funds and target rebalacning weights do not match");
+            }
             double portAmount = GetPortfolioAmount();
             var funds_and_weights = Funds.Zip(weights, (fund, weight) => (fund, weight));
             foreach (var fw in funds_and_weights)
             {
-                fw.fund.SetFundAmount(portAmount*fw.weight);
+                fw.fund.SetDollarAmount(portAmount*fw.weight);
             }
 
         }

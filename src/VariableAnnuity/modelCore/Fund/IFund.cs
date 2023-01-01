@@ -6,17 +6,9 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal interface IFund
+    internal interface IFund: IMoneyAccount
     {
-        string GetFundNme();
-        double GetFundAmount();
-        void SetFundAmount(double amount);
+        string GetFundName();
         void GrowFund();
-        void AddDollarAmount(double amount);
-        void AddAmountByPercentage(double amountPercentage);
-        void DeducDollartAmount(double amount);
-
-        void DeductPercentageAmount(double amountPercentage);
-
     }
 }

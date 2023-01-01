@@ -46,19 +46,35 @@ namespace VariableAnnuity
         }
     }
 
-    public class LifePayPlusDeathBenefitRider : BaseDeathBenefitRider
+    public class LifePayPlusDeathBenefitRider : BaseDeathBenefitRider, IContributionMadeHandlable, IFeePaidHandlable, IWithdrawMadeHandlable, IRiderChargeHandlable
     {
+        protected double WithdrawAmountLastYear;
         public LifePayPlusDeathBenefitRider(double baseAmount, double chargeRate = 0) : base(baseAmount, chargeRate)
         {
-        }
-        public override void UpdateBaseAmount()
-        {
-            BaseAmount = Math.Max((1 - MortalityRate) * BaseAmount + Contribution - Fees - PrevWithdrawAmount - RiderChargeRate, 0) ;
+            WithdrawAmountLastYear = 0;
         }
 
-        public override double GetClaimAmount()
+
+        public void OnCotributionMade(object source, DollarAmountEventArgs args)
         {
-            return BaseAmount * MortalityRate;
+            BaseAmount += args.DollarAmount;
         }
+
+        public void OnFeePaid(object source, DollarAmountEventArgs args)
+        {
+            BaseAmount -= args.DollarAmount;
+        }
+
+        public void OnRiderChargePaid(object source, DollarAmountEventArgs args)
+        {
+            BaseAmount -= args.DollarAmount;
+        }
+
+        public void OnWithdrawMade(object source, DollarAmountEventArgs args)
+        {
+            BaseAmount -= WithdrawAmountLastYear;
+            WithdrawAmountLastYear = args.DollarAmount;
+        }
+
     }
 }

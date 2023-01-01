@@ -12,11 +12,11 @@ namespace VariableAnnuity
     {
 
         protected string PortfolioName;
-        protected List<BaseFund> Funds;
+        protected List<IFund> Funds;
 
 
 
-        public BaseFundsPortfolio(string portfolioName, List<BaseFund> funds)
+        public BaseFundsPortfolio(string portfolioName, List<IFund> funds)
         {
             PortfolioName = portfolioName;
             Funds = funds;
@@ -42,7 +42,7 @@ namespace VariableAnnuity
 
         public List<double> GetFundsAmounts()
         {
-            return (from fund in Funds select fund.GetFundAmount()).ToList();
+            return (from fund in Funds select fund.GetDollarAmount()).ToList();
         }
 
         public List<string> GetPortfolioAndFundsNames()
