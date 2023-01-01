@@ -18,6 +18,11 @@ namespace VariableAnnuity
 
         public BaseFundsPortfolio(string portfolioName, List<IFund> funds)
         {
+            if (funds.Count == 0)
+            {
+                throw new Exception("Number of funds and target rebalacning weights do not match");
+
+            }
             PortfolioName = portfolioName;
             Funds = funds;
         }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal interface IFund: IMoneyAccount
+    public interface IFund: IMoneyAccount
     {
         string GetFundName();
         void GrowFund();
