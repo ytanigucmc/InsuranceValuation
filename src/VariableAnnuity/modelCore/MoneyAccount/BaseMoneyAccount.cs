@@ -23,10 +23,10 @@ namespace VariableAnnuity
         public abstract double GetDollarAmount();
         public abstract void SetDollarAmount(double amount);
         public abstract void AddDollarAmount(double amount);
-        public abstract void AddAmountByPercentage(double percentageAmount);
-        public abstract void DeducDollartAmount(double amount);
+        public abstract void AddPercentageAmount(double percentageAmount);
+        public abstract void DeductDollarAmount(double amount);
         public abstract void DeductPercentageAmount(double percentageAmount);
 
     }
 }
-}
+

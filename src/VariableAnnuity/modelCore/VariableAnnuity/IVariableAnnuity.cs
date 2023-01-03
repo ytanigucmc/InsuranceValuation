@@ -8,7 +8,7 @@ namespace VariableAnnuity
 {
     internal interface IVariableAnnuity: IContract
     {
-        DateTime AnnuityStartDate { get;}
+        int AnnuityStartAge { get;}
         BasePolicyHolder Annuiant { get;}
         double MortalityExpenseRiskCharge { get;}
         double FundFees { get;}
@@ -17,15 +17,19 @@ namespace VariableAnnuity
 
         double CalculateFeeAmount();
 
-        double PayFee();
+        void PayFee(double amount);
 
         double CalculateRiderChargeAmount();
 
-        double PayRiderCharge();
+        void PayRiderCharge(double amount);
+
+        void ContributeDollarAmount(double amount);
 
         void WithdrawDollarAmount(double amount);
 
         void RebalanceFunds(List<double> targetWeights);
+
+        void DeductPerentageAmountRiderBases(double percentage);
 
 
 

@@ -4,57 +4,19 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using VariableAnnuity.modelCore.VariableAnnuity.EventHandlerInterfaces;
 
 namespace VariableAnnuity
 {
-    public class VariableAnnuity
+    public class VariableAnnuity: BaseVariableAnnuity
     {
-        public DateTime ContractDate { get; protected set; }
-        public int ContractYear { get; protected set; }
-        public DateTime AnnuityStartDate { get; protected set; }
-        public BasePolicyHolder ContractOwner { get; protected set; }
 
-        public BasePolicyHolder Annuiant { get; protected set; }
-
-        public BaseFundsPortfolio Funds { get; protected set; }
-
-        public List<IRider> Riders { get; protected set; }
-
-        public double MortalityExpenseRiskCharge { get; protected set; }
-
-        public double FundFees { get; protected set; }
-
-
-
-        public VariableAnnuity(DateTime contractDate, DateTime annuityStartDate, BasePolicyHolder contractOwner, BasePolicyHolder annuiant, BaseFundsPortfolio funds, double mortalityExpenseRiskCharge, double fundFees)
+        public VariableAnnuity(DateTime contractDate, BasePolicyHolder contractOwner, int annuityStartAge, BasePolicyHolder annuiant, double mortalityExpenseRiskCharge, double fundFees, BaseFundsPortfolio funds, List<BaseRider> riders):
+            base(contractDate, contractOwner, annuityStartAge, annuiant, mortalityExpenseRiskCharge, fundFees, funds, riders)
         {
-            ContractYear = 0;
-            ContractDate = contractDate;
-            AnnuityStartDate = annuityStartDate;
-            ContractOwner = contractOwner;
-            Annuiant = annuiant;
-            Funds = funds;
-            MortalityExpenseRiskCharge = mortalityExpenseRiskCharge;
-            FundFees = fundFees;
-        
         }
 
-        public void AdvanceYear()
-        {
-            ContractYear+= 1;
-            ContractOwner.IncrementAge(1);
-            if (!Object.ReferenceEquals(ContractOwner, Annuiant))
-            {
-                Annuiant.IncrementAge(1);
-            }
-
-            foreach (IRider rider in Riders) 
-            {
-                rider.AdvanceYear();
-            }
-        }
-
-        public double GetContractValue()
+        public override double GetContractValue()
         {
             return Funds.GetPortfolioAmount();
         }
@@ -70,6 +32,60 @@ namespace VariableAnnuity
         }
 
 
+        public override void PayFee(double feeAmount)
+        {
+            Funds.DeductDollarAmount(feeAmount);
+            OnFeePaid(feeAmount);
+        }
 
+        public override void PayRiderCharge(double chargeAmont)
+        {
+            Funds.DeductDollarAmount(chargeAmont);
+            OnRiderChargeMade(chargeAmont);
+        }
+
+
+        public override void ContributeDollarAmount(double contributionAmount)
+        {
+            OnContributionMade(contributionAmount);
+        }
+
+        public override void WithdrawDollarAmount(double withdrawAmount)
+        {
+            Funds.DeductDollarAmount(withdrawAmount);
+            OnWithdrawMade(withdrawAmount); 
+        }
+
+        public override void RebalanceFunds(List<double> targetWeights)
+        {
+            Funds.Rebalance(targetWeights);
+        }
+
+        public override void AgeContractByOneYear()
+        {
+            ContractYear += 1;
+            ContractOwner.IncrementAge(1);
+            if (!Object.ReferenceEquals(ContractOwner, Annuiant))
+            {
+                Annuiant.IncrementAge(1);
+            }
+            Funds.GrowFunds();
+        }
+
+        public override void UpdateOnAnniversaryReached()
+        {
+            OnAnniversaryReached();
+        }
+
+        public override void DeductPerentageAmountRiderBases(double percentage)
+        {
+            foreach (BaseRider rider in Riders)
+            {
+                if (rider is IBaseComputable _rider1)
+                {
+                    _rider1.DecreaseBasePercentageAmount(percentage);
+                }
+            }
+        }
     }
 }

@@ -9,16 +9,16 @@ namespace VariableAnnuity
 {
     public class PolicyHolder: BasePolicyHolder
     {
-        public PolicyHolder(double age):base(age)
+        public PolicyHolder(int age):base(age)
         {
         }
 
-        public override double GetAge()
+        public override int GetAge()
         {
             return Age;
         }
 
-        public override void IncrementAge(double increment)
+        public override void IncrementAge(int increment)
         {
             Age += increment;
             if (Age < 0)

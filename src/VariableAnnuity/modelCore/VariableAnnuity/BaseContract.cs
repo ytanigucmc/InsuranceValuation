@@ -20,5 +20,9 @@ namespace VariableAnnuity
         }
 
         public abstract double GetContractValue();
+
+        public abstract void AgeContractByOneYear();
+
+        public abstract void UpdateOnAnniversaryReached();
     }
 }

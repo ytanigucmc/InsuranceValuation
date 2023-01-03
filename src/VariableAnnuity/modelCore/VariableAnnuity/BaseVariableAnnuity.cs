@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VariableAnnuity.modelCore.VariableAnnuity.EventHandlerInterfaces;
 
 namespace VariableAnnuity
 {
@@ -12,9 +13,9 @@ namespace VariableAnnuity
         public double DollarAmount { get; set; }
     }
 
-    public abstract class BaseVariableAnnuity: BaseContract, IVariableAnnuity
+    public abstract partial class BaseVariableAnnuity: BaseContract, IVariableAnnuity
     {
-        public DateTime AnnuityStartDate { get; protected set; }
+        public int AnnuityStartAge { get; protected set; }
         public BasePolicyHolder Annuiant { get; protected set; }
         public double MortalityExpenseRiskCharge { get; set; }
         public double FundFees { get; set; }
@@ -22,17 +23,15 @@ namespace VariableAnnuity
         
         public List<BaseRider> Riders { get; protected set; }
 
-        public BaseVariableAnnuityEventHanlder RiderEventHandler { get; protected set; }
-
-        public BaseVariableAnnuity(DateTime contractDate, BasePolicyHolder contractOwner, DateTime annuityStartDate, BasePolicyHolder annuiant, double mortalityExpenseRiskCharge, double fundFees, BaseFundsPortfolio funds, List<BaseRider> riders):base(contractDate, contractOwner)
+        public BaseVariableAnnuity(DateTime contractDate, BasePolicyHolder contractOwner, int annuityStartAge, BasePolicyHolder annuiant, double mortalityExpenseRiskCharge, double fundFees, BaseFundsPortfolio funds, List<BaseRider> riders):base(contractDate, contractOwner)
         {
-            AnnuityStartDate = annuityStartDate;
+            AnnuityStartAge = annuityStartAge;
             Annuiant = annuiant;
             MortalityExpenseRiskCharge = mortalityExpenseRiskCharge;
             FundFees = fundFees;
             Funds = funds;
             Riders = riders;
-            RiderEventHandler = new BaseVariableAnnuityEventHanlder(riders);
+            RegisterRidersForEventHandlers(riders);
         }
 
         public double CalculateFeeAmount()
@@ -46,20 +45,21 @@ namespace VariableAnnuity
             return GetContractValue() * (from rider in Riders select rider.GetRiderChargeRate()).ToArray().Sum();
         }
 
-        public abstract double PayFee();
+        public abstract void PayFee(double feeAMount);
 
-        public abstract double PayRiderCharge();
+        public abstract void PayRiderCharge(double riderChargeAmount);
 
-        public abstract void ContributeDollarAmount(double amount);
+        public abstract void ContributeDollarAmount(double contributionAmount);
 
-        public abstract void WithdrawDollarAmount(double amount);
+        public abstract void WithdrawDollarAmount(double withdrawAmount);
 
         public abstract void RebalanceFunds(List<double> targetWeights);
 
         public abstract void DeductPerentageAmountRiderBases(double percentage);
+
     }
 
-    public class BaseVariableAnnuityEventHanlder
+    public partial class BaseVariableAnnuity : BaseContract, IVariableAnnuity
     {
         public event EventHandler<DollarAmountEventArgs> FeePaid;
 
@@ -69,7 +69,9 @@ namespace VariableAnnuity
 
         public event EventHandler<DollarAmountEventArgs> WithdrawMade;
 
-        public BaseVariableAnnuityEventHanlder(List<BaseRider> riders)
+        public event EventHandler<EventArgs> AnniversaryReached;
+
+        private void RegisterRidersForEventHandlers(List<BaseRider> riders)
         {
             foreach(BaseRider rider in riders)
             {
@@ -87,9 +89,15 @@ namespace VariableAnnuity
                 {
                     FeePaid += _rider3.OnCotributionMade;
                 }
+
                 if (rider is IWithdrawMadeHandlable _rider4)
                 {
                     FeePaid += _rider4.OnWithdrawMade;
+                }
+
+                if (rider is IAnniversaryReachedHandlable _rider5)
+                {
+                    AnniversaryReached += _rider5.OnAnniversaryReached;
                 }
             }
         }
@@ -112,6 +120,11 @@ namespace VariableAnnuity
         protected virtual void OnWithdrawMade(double withdrwAmount)
         {
             WithdrawMade?.Invoke(this, new DollarAmountEventArgs() { DollarAmount = withdrwAmount });
+        }
+
+        protected virtual void OnAnniversaryReached()
+        {
+            AnniversaryReached?.Invoke(this, new EventArgs());
         }
     }
 

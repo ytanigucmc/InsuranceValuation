@@ -8,13 +8,13 @@ namespace VariableAnnuity
 {
     public abstract class BasePolicyHolder: IPolicyHolder
     {
-        protected double Age;
-        public BasePolicyHolder(double age)
+        protected int Age;
+        public BasePolicyHolder(int age)
         {
             Age = age;
         }
 
-        public abstract double GetAge();
-        public abstract void IncrementAge(double age);
+        public abstract int GetAge();
+        public abstract void IncrementAge(int increment);
     }
 }

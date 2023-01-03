@@ -10,7 +10,7 @@ namespace VariableAnnuity
     {
         private double FixedReturn;
 
-        FixedReturnGenerator(double fixedReturn)
+        public FixedReturnGenerator(double fixedReturn)
         {
             FixedReturn = fixedReturn;
         }

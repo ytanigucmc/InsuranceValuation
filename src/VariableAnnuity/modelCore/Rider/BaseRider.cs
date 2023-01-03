@@ -20,10 +20,6 @@ namespace VariableAnnuity
         {
             return RiderChargeRate;
         }
-
-
-
-
     }
 
 }

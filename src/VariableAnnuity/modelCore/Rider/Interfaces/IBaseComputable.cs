@@ -10,13 +10,13 @@ namespace VariableAnnuity
     {
         double GetBaseAmount();
 
-        void IncreaseBaseDollarAmount(double percentage);
+        void IncreaseBaseDollarAmount(double dollar);
 
         void IncreaseBasePercentageAmount(double percentage);
 
         void DecreaseBaseDollarAmount(double dollar);
 
-        void DecreaseBasePercentageAmount(double dollar);
+        void DecreaseBasePercentageAmount(double percentage);
 
     }
 }

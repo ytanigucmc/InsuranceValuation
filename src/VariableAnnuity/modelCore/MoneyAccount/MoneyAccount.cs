@@ -27,19 +27,19 @@ namespace VariableAnnuity
             MoneyAmount += amount;
             MoneyAmount = Math.Max(0, MoneyAmount);
         }
-        public override void AddAmountByPercentage(double percentageAmount)
+        public override void AddPercentageAmount(double percentageAmount)
         {
             AddDollarAmount(percentageAmount * MoneyAmount);
         }
 
-        public override void DeducDollartAmount(double amount)
+        public override void DeductDollarAmount(double amount)
         {
             AddDollarAmount(-amount);
         }
 
         public override void DeductPercentageAmount(double percentageAmount)
         {
-            DeducDollartAmount(-percentageAmount * MoneyAmount);
+            DeductDollarAmount(percentageAmount * MoneyAmount);
         }
     }
 }

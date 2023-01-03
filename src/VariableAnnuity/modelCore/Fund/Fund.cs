@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    public abstract class Fund : MoneyAccount, IFund
+    public  class Fund : MoneyAccount, IFund
     {
         public string FundName;
         protected BaseReturnGenerator PercentageReturnGenerator;
@@ -24,7 +24,7 @@ namespace VariableAnnuity
 
         public void GrowFund()
         {
-            AddAmountByPercentage(PercentageReturnGenerator.GetReturn());
+            AddPercentageAmount(PercentageReturnGenerator.GetReturn());
         }
 
     }

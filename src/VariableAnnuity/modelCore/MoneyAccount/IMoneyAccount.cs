@@ -11,8 +11,8 @@ namespace VariableAnnuity
         double GetDollarAmount();
         void SetDollarAmount(double amount);
         void AddDollarAmount(double amount);
-        void AddAmountByPercentage(double amountPercentage);
-        void DeducDollartAmount(double amount);
+        void AddPercentageAmount(double amountPercentage);
+        void DeductDollarAmount(double amount);
         void DeductPercentageAmount(double amountPercentage);
     }
 }

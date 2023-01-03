@@ -1,9 +1,13 @@
-﻿using MathNet.Numerics.Interpolation;
+﻿using MathNet.Numerics;
+using MathNet.Numerics.Interpolation;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VariableAnnuity.modelCore.Rider;
+using VariableAnnuity.modelCore.VariableAnnuity.EventHandlerInterfaces;
 
 namespace VariableAnnuity
 {
@@ -16,77 +20,124 @@ namespace VariableAnnuity
         LastDeath
     }
 
-    public class MGWBRider: BaseRider, IBaseComputable, IWithdrawable
+    public class MGWBRider : BaseRiderBaseComputable, IContributionMadeHandlable, IFeePaidHandlable, IWithdrawMadeHandlable, IRiderChargeHandlable, IAnniversaryReachedHandlable
     {
 
-
-        public double BaseAmount { get;set; }
         public double StepUpRate { get; set; }
 
         public bool StepUpEligibility { get; set; }
 
         public bool RebalanceIndiactor { get; set; }
 
-        public MGWRRidePhase RiderPhase = MGWRRidePhase.Initial;
+        public int AnnuityCommencementAge { get; set; }
 
-        public IInterpolation UnivariateMortalityTable { get; set; }
+        public int DeathAge { get; set; }
+
+        public MGWRRidePhase RiderPhase = MGWRRidePhase.Initial;
 
         public IInterpolation MaximumAnnualWithdrawl { get; set; }
 
-        public MGWBRider(double baseAmount, double chargeRate, double stepUpRate, IInterpolation mortalityTable, IInterpolation maximumAnnualWithdrawl) : base(chargeRate)
+        private double CumulativeBaseAdjustment;
+
+        private double CumulativeContribution;
+
+        private double CumulativeWithdraw;
+
+        public MGWBRider(double baseAmount, double chargeRate, double stepUpRate, int annuityCommencementAge ,IInterpolation maximumAnnualWithdrawl) : base(baseAmount, chargeRate)
         {
-            BaseAmount = baseAmount;
             StepUpRate = stepUpRate;
-            UnivariateMortalityTable = mortalityTable;
             MaximumAnnualWithdrawl = maximumAnnualWithdrawl;
+            AnnuityCommencementAge = annuityCommencementAge;
+            CumulativeBaseAdjustment = 0;
+            CumulativeContribution = 0;
+            CumulativeWithdraw = 0;
         }
 
-        
-        public override double GetRiderChargeAmount()
+        private double GetWithdrawlExcessAllowance(double withdrawAmount, int age)
         {
-            ContractValue * RiderChargeRate;
-
-        }
-        
-        public double GetBaseAmount()
-        {
-            return BaseAmount;
+            return Math.Max(withdrawAmount - GetMaximumWithdrawAllowance(age), 0);
         }
 
-        public void UpdateBaseAmount(CashflowRecords Records)
+        private double GetMaximumWithdrawAllowance(int age)
         {
-            double temp1 =0, temp2 = 0, temp3 = 0;
-            if (RiderPhase == MGWRRidePhase.GrowthPhase)
+            return RiderBase.GetDollarAmount() * MaximumAnnualWithdrawl.Interpolate(age);
+        }
+
+        public void OnCotributionMade(object source, DollarAmountEventArgs args)
+        {
+            CumulativeBaseAdjustment += args.DollarAmount;
+            CumulativeContribution += args.DollarAmount;
+
+        }
+
+        public void OnFeePaid(object source, DollarAmountEventArgs args)
+        {
+            CumulativeBaseAdjustment -= args.DollarAmount;
+        }
+
+        public void OnRiderChargePaid(object source, DollarAmountEventArgs args)
+        {
+            CumulativeBaseAdjustment -= args.DollarAmount;
+        }
+
+        public void OnWithdrawMade(object source, DollarAmountEventArgs args)
+        {
+            CumulativeWithdraw += args.DollarAmount;
+        }
+
+        public void OnAnniversaryReached(object source, EventArgs args)
+        {
+            BaseVariableAnnuity annuity = (BaseVariableAnnuity)source;
+            double contractValue = annuity.GetContractValue();
+            UpdateRiderBase(contractValue, annuity.ContractOwner.GetAge());
+            UpdateRiderPhase(annuity.ContractOwner.GetAge(), contractValue);
+            CumulativeBaseAdjustment = 0;
+            CumulativeContribution = 0;
+            CumulativeWithdraw = 0;
+        }
+
+        private void UpdateRiderBase(double contractValue, int age)
+        {
+            double excessWithdraw = GetWithdrawlExcessAllowance(CumulativeWithdraw, age);
+            double currentBaseAdjusted = RiderBase.GetDollarAmount() + CumulativeContribution - excessWithdraw;
+            double rachetBase = contractValue * Convert.ToInt32(RiderPhase == MGWRRidePhase.GrowthPhase);
+            double stepUpeBase = RiderBase.GetDollarAmount() * (1 + StepUpRate) * Convert.ToInt32(StepUpEligibility) + CumulativeBaseAdjustment - excessWithdraw;
+            RiderBase.SetDollarAmount(new double[] { currentBaseAdjusted, rachetBase, stepUpeBase }.Max());
+        }
+
+        private void UpdateRiderPhase(int age, double contractValue)
+        {
+            if (CumulativeWithdraw == 0 && age <= AnnuityCommencementAge && age  < DeathAge )
             {
-                temp1 = Records[-1]["AV Post-Death Claims"];
-            }
+                RiderPhase = MGWRRidePhase.GrowthPhase;
+            }    
 
-            temp2 = Records[-1]["WithdrawlBase"] * (1 - UnivariateMortalityTable.Interpolate(Age)) + Records[-1]["Contribution"];
 
-            if (StepUpEligibility)
-            {
-                temp3 = Records[-1]["WithdrawlBase"] * (1 - UnivariateMortalityTable.Interpolate(Age)) * (1 + StepUpRate) + Records[-1]["Contribution"] - Records[-1]["M&E/Fund Fees"] - Records[-1]["RiderCharge"];
-            }
-
-            BaseAmount =  new double[] { temp1, temp2, temp3 }.Max();
-        }
-
-        public void Withdraw(double dollarAmount)
-        {
-            if (RiderPhase == MGWRRidePhase.WithdrawPhase && dollarAmount > 0) 
-            {
-                BaseAmount -= GetWithdrawlExcessAllowance(dollarAmount);
-            }
-            if (RiderPhase == MGWRRidePhase.GrowthPhase && dollarAmount >0)
+            else if ((CumulativeWithdraw > 0 || age > AnnuityCommencementAge || age > DeathAge) && contractValue > 0)
             {
                 RiderPhase = MGWRRidePhase.WithdrawPhase;
-                BaseAmount -= GetWithdrawlExcessAllowance(dollarAmount);
             }
-        }
 
-        private double GetWithdrawlExcessAllowance(double dollarAmount)
-        {
-            return Math.Max(dollarAmount - BaseAmount * MaximumAnnualWithdrawl.Interpolate(Age), 0);
+            else if (age < DeathAge || RiderPhase == MGWRRidePhase.WithdrawPhase || contractValue == 0)
+            {
+                RiderPhase = MGWRRidePhase.AutomaticPeriodicBenefitStatus;
+            }
+
+            else if (age < DeathAge || RiderPhase == MGWRRidePhase.AutomaticPeriodicBenefitStatus)
+            {
+                RiderPhase = MGWRRidePhase.AutomaticPeriodicBenefitStatus;
+            }
+
+            else if (age == DeathAge)
+            {
+                RiderPhase = MGWRRidePhase.LastDeath;
+            }
+
+            else
+            {
+                throw new Exception("Condition not handled by UpdateRiderBase has been reached");
+            }
+           
         }
 
     }

@@ -39,7 +39,7 @@ namespace VariableAnnuity
         {
             foreach(IFund fun in Funds)
             {
-                fun.AddAmountByPercentage(amountPercentage);
+                fun.AddPercentageAmount(amountPercentage);
             }
           
         }

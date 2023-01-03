@@ -13,5 +13,9 @@ namespace VariableAnnuity
         BasePolicyHolder ContractOwner { get;}
 
         double GetContractValue();
+
+        void AgeContractByOneYear();
+
+        void UpdateOnAnniversaryReached();
     }
 }

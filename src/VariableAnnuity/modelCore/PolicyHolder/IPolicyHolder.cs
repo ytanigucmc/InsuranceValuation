@@ -8,7 +8,7 @@ namespace VariableAnnuity
 {
     internal interface IPolicyHolder
     {
-        double GetAge();
-        void IncrementAge(double increment);
+        int GetAge();
+        void IncrementAge(int increment);
     }
 }

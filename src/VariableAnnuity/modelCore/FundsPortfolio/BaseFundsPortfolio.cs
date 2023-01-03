@@ -63,6 +63,14 @@ namespace VariableAnnuity
             amounts.Insert(0, GetPortfolioAmount());
             return amounts;
         }
+
+        public List<(string, double)> GetPortfolioAndFundsNameAndAmounts()
+        {
+            List<double> amounts = GetPortfolioAndFundsAmounts();
+            List<string> names = GetPortfolioAndFundsNames();
+            return names.Zip(amounts, (name, amount) => (name, amount)).ToList();
+        }
+
         public abstract List<double> GetPortfolioWeights();
         public abstract void GrowFunds();
         public abstract void AddDollarAmount(double amount);
