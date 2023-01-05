@@ -94,10 +94,6 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
             recorder.AddElement("Year", Annuity.ContractYear);
             recorder.AddDateTime("Anniversary", Annuity.LastAnniversaryDate);
             recorder.AddElement("Age", Annuity.ContractOwner.GetAge());
-
-            //recordHolder.Add(CashFlowHeaders.Year, Annuity.ContractYear);
-            //recordHolder.Add(CashFlowHeaders.Anniversary, Annuity.LastAnniversaryDate);
-            //recordHolder.Add(CashFlowHeaders.Age, Annuity.ContractOwner.GetAge());
         }
 
         private double CalculateFeesAmount()
@@ -122,9 +118,6 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
             Annuity.ContributeDollarAmount(contribution);
             recorder.AddElement("Contribution", contribution);
             recorder.AddFundsData(Annuity, "Pre-Fee");
-
-            //recordHolder.Add(CashFlowHeaders.Contribution, contribution);
-            //recordHolder.AddFundsData(Annuity, "Pre-Fee");
         }
 
 
@@ -133,9 +126,6 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
             Annuity.PayFee(fundFeesAmount);
             recorder.AddElement("M&E/Fund Fees", fundFeesAmount);
             recorder.AddFundsData(Annuity, "Pre-Withdrawl");
-
-            //recordHolder.Add(CashFlowHeaders.Fees, fundFeesAmount);
-            //recordHolder.AddFundsData(Annuity, "Pre-Withdrawl");
         }
 
 
@@ -148,10 +138,6 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
             Annuity.WithdrawDollarAmount(WithdrawlAmount);
             recorder.AddElement("Withdrawal Amount", WithdrawlAmount);
             recorder.AddFundsData(Annuity, "Post-Withdrawl");
-
-            //recordHolder.Add(CashFlowHeaders.WithdrawalAmount, WithDrawlAmount);
-            //recordHolder.AddFundsData(Annuity, "Post-Withdrawl");
-
         }
 
         private void PayRiderCharge()
@@ -214,6 +200,7 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
 
         private double WithdrawAmountStrategy()
         {
+
             if (MGWBRider.RiderPhase == MGWRRidePhase.WithdrawPhase)
             {
                 return MGWBRider.GetBaseAmount() * 0.03;
