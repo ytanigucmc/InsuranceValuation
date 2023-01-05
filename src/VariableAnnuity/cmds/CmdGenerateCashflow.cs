@@ -66,8 +66,8 @@ namespace VariableAnnuity
             List<string> headerPVCalculation = new List<string>() { "NAR Death Claims", "Withdrawl Claims", "Rider Charges" };
             List<string> newHeaderPVCalculation = new List<string>() { "PV_DB_Claim", "PV_WB_Claim", "PV_RC" };
             DataTable PVs = PVEngine.FromDataTable(cashflowRecords, "year", headerPVCalculation, newHeaderPVCalculation);
-            cashflowRecords.ToCSV(Path.Join(output_dir, "output.csv"));
-            PVs.ToCSV(Path.Join(output_dir, "output2.csv"));
+            cashflowRecords.ToCSV(Path.Join(output_dir, "Cashflows.csv"));
+            PVs.ToCSV(Path.Join(output_dir, "PVCalculation.csv"));
 
         }
 
