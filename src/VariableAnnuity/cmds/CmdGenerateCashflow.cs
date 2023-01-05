@@ -16,9 +16,10 @@ namespace VariableAnnuity
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("In main now");
-            string config_file = args[0];
-            VariableAnnuityConfig config = new VariableAnnuityConfig(config_file);
+            Console.WriteLine("Enter output directory: ");
+            string output_dir = Console.ReadLine();
+            //string config_file = args[0];
+            //VariableAnnuityConfig config = new VariableAnnuityConfig(config_file);
 
             double riskFreeRate = 0.03;
             double volatility = 0.16;
@@ -65,8 +66,9 @@ namespace VariableAnnuity
             List<string> headerPVCalculation = new List<string>() { "NAR Death Claims", "Withdrawl Claims", "Rider Charges" };
             List<string> newHeaderPVCalculation = new List<string>() { "PV_DB_Claim", "PV_WB_Claim", "PV_RC" };
             DataTable PVs = PVEngine.FromDataTable(cashflowRecords, "year", headerPVCalculation, newHeaderPVCalculation);
-            cashflowRecords.ToCSV("D:\\variable_annuity\\output\\output.csv");
-            PVs.ToCSV("D:\\variable_annuity\\output\\output2.csv");
+            cashflowRecords.ToCSV(Path.Join(output_dir, "output.csv"));
+            PVs.ToCSV(Path.Join(output_dir, "output2.csv"));
+
         }
 
     }
