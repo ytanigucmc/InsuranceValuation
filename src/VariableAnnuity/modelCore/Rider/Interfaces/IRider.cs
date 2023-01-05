@@ -9,5 +9,7 @@ namespace VariableAnnuity
     public interface IRider
     {
         double GetRiderChargeRate();
+        string GetRiderName();
+        string GetRiderTypeName();
     }
 }

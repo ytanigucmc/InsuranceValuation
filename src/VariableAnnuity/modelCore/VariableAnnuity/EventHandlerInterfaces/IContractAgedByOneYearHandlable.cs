@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    public abstract class BaseMortalityTable: IMortalityTable
+    internal interface IContractAgedByOneYearHandlable
     {
-        public abstract double GetMortalityRate(BasePolicyHolder holder);
+        void OnContractAgedByOneYear(object source, EventArgs args);
     }
 }

@@ -21,14 +21,19 @@ namespace VariableAnnuity
             return Funds.GetPortfolioAmount();
         }
 
-        public double GetFeeAmount()
+        public override double GetFeeAmount()
         {
-            return GetContractValue() * (MortalityExpenseRiskCharge + FundFees);
+            return GetFeeAmount(GetContractValue());
+        }
+
+        public override double GetFeeAmount(double contractValue)
+        {
+            return contractValue * (MortalityExpenseRiskCharge + FundFees);
         }
 
         public double GetRiderChargeAmount()
         {
-            return GetContractValue() * (from rider in Riders select rider.GetRiderChargeRate()).ToArray().Sum();
+            return GetContractValue() * (from rider in Riders select rider.GetRiderChargeRate()).Sum();
         }
 
 
@@ -59,17 +64,20 @@ namespace VariableAnnuity
         public override void RebalanceFunds(List<double> targetWeights)
         {
             Funds.Rebalance(targetWeights);
+            
         }
 
         public override void AgeContractByOneYear()
         {
+
             ContractYear += 1;
+            LastAnniversaryDate = LastAnniversaryDate.AddYears(1);
             ContractOwner.IncrementAge(1);
             if (!Object.ReferenceEquals(ContractOwner, Annuiant))
             {
                 Annuiant.IncrementAge(1);
             }
-            Funds.GrowFunds();
+            OnContractAgedByOneYear();
         }
 
         public override void UpdateOnAnniversaryReached()

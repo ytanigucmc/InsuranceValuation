@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal interface IMortalityTable
+    public abstract class BaseWithdrawlStrategy: IWithdrawStrategy
     {
-        double GetMortalityRate(BasePolicyHolder holder);
+        public abstract double GetWithdrawlAmount();
     }
 }

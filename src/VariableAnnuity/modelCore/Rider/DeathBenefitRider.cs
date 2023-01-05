@@ -14,6 +14,8 @@ namespace VariableAnnuity
     {
         public ReturnOfPremiumDeathBenefitRider(double baseAmount, double chargeRate): base(baseAmount, chargeRate)
         {
+            RiderTypeName = RiderTypeNames.DeathBenefit;
+            RiderName = "ReturnOfPremiumDeathBenefitRider";
         }
     }
 
@@ -30,6 +32,8 @@ namespace VariableAnnuity
             CumulativeWithdrawAmountLastYear = 0;
             CumulativeWithdrawAmountThisYear = 0;
             CumulativeBasisAdjustment = 0;
+            RiderTypeName = RiderTypeNames.DeathBenefit;
+            RiderName = "LifePayPlusDeathBenefitRider";
         }
 
 
@@ -56,7 +60,9 @@ namespace VariableAnnuity
         public void OnAnniversaryReached(object source, EventArgs args)
         {
             RiderBase.AddDollarAmount(CumulativeBasisAdjustment - CumulativeWithdrawAmountLastYear);
+            CumulativeBasisAdjustment = 0;
             CumulativeWithdrawAmountLastYear = CumulativeWithdrawAmountThisYear;
+            CumulativeWithdrawAmountThisYear = 0;
         }
 
     }

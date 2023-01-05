@@ -15,7 +15,7 @@ namespace VariableAnnuity
         BaseFundsPortfolio Funds { get;}
         List<BaseRider> Riders { get; }
 
-        double CalculateFeeAmount();
+        double GetFeeAmount();
 
         void PayFee(double amount);
 

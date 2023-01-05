@@ -19,22 +19,37 @@ namespace VariableAnnuity
             return (from fund in GetFundsAmounts() select fund / portAmount).ToList();
         }
 
-        public override void GrowFunds()
+        public override void ApplyReturns(List<double> fundReturns)
         {
-            foreach (IFund fund in Funds)
+            foreach (var fr in Funds.Zip(fundReturns, Tuple.Create))
             {
-                fund.GrowFund();
+                fr.Item1.ApplyReturn(fr.Item2);
             }
         }
         public override void AddDollarAmount(double amount)
         {
-            List<double> portWeights = GetPortfolioWeights();
-            var funds_and_weights = Funds.Zip(portWeights, (fund, weight) => (fund, weight));
-            foreach (var fw in funds_and_weights)
+            if (GetPortfolioAmount() > 0)
             {
-                fw.fund.AddDollarAmount(fw.weight * amount);
+                List<double> portWeights = GetPortfolioWeights();
+                var funds_and_weights = Funds.Zip(portWeights, (fund, weight) => (fund, weight));
+                foreach (var fw in funds_and_weights)
+                {
+                    fw.fund.AddDollarAmount(fw.weight * amount);
+                }
             }
         }
+
+        public override void AddDollarAmount(int index, double amount)
+        {
+            Funds[index].AddDollarAmount(amount);
+        }
+
+        public override void AddDollarAmount(string fundName, double amount)
+        {
+            IFund fundSpec = (from fund in Funds where fund.GetFundName() == fundName select fund).ToList()[0];
+            fundSpec.AddDollarAmount(amount);
+        }
+
         public override void AddPercentageAmount(double amountPercentage)
         {
             foreach(IFund fun in Funds)

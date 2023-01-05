@@ -13,7 +13,7 @@ namespace VariableAnnuity
         public double DollarAmount { get; set; }
     }
 
-    public abstract partial class BaseVariableAnnuity: BaseContract, IVariableAnnuity
+    public abstract partial class BaseVariableAnnuity : BaseContract, IVariableAnnuity
     {
         public int AnnuityStartAge { get; protected set; }
         public BasePolicyHolder Annuiant { get; protected set; }
@@ -34,10 +34,7 @@ namespace VariableAnnuity
             RegisterRidersForEventHandlers(riders);
         }
 
-        public double CalculateFeeAmount()
-        {
-            return GetContractValue() * (MortalityExpenseRiskCharge + FundFees);
-        }
+        public abstract double GetFeeAmount();
 
 
         public double CalculateRiderChargeAmount()
@@ -57,6 +54,11 @@ namespace VariableAnnuity
 
         public abstract void DeductPerentageAmountRiderBases(double percentage);
 
+        public virtual void ApplyFundsReturns(List<double>fundReturns)
+        {
+            Funds.ApplyReturns(fundReturns);
+        }
+
     }
 
     public partial class BaseVariableAnnuity : BaseContract, IVariableAnnuity
@@ -71,6 +73,8 @@ namespace VariableAnnuity
 
         public event EventHandler<EventArgs> AnniversaryReached;
 
+        public event EventHandler<EventArgs> ContractAgedByOneYear;
+
         private void RegisterRidersForEventHandlers(List<BaseRider> riders)
         {
             foreach(BaseRider rider in riders)
@@ -82,22 +86,27 @@ namespace VariableAnnuity
 
                 if (rider is IRiderChargeHandlable _rider2)
                 {
-                    FeePaid += _rider2.OnRiderChargePaid;
+                    RiderChargePaid += _rider2.OnRiderChargePaid;
                 }
 
                 if (rider is IContributionMadeHandlable _rider3)
                 {
-                    FeePaid += _rider3.OnCotributionMade;
+                    ContributionMade += _rider3.OnCotributionMade;
                 }
 
                 if (rider is IWithdrawMadeHandlable _rider4)
                 {
-                    FeePaid += _rider4.OnWithdrawMade;
+                    WithdrawMade += _rider4.OnWithdrawMade;
                 }
 
                 if (rider is IAnniversaryReachedHandlable _rider5)
                 {
                     AnniversaryReached += _rider5.OnAnniversaryReached;
+                }
+
+                if (rider is IContractAgedByOneYearHandlable _rider6)
+                {
+                    ContractAgedByOneYear += _rider6.OnContractAgedByOneYear;
                 }
             }
         }
@@ -125,6 +134,11 @@ namespace VariableAnnuity
         protected virtual void OnAnniversaryReached()
         {
             AnniversaryReached?.Invoke(this, new EventArgs());
+        }
+
+        protected virtual void OnContractAgedByOneYear()
+        {
+            ContractAgedByOneYear?.Invoke(this, new EventArgs());
         }
     }
 

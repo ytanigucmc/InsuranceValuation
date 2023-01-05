@@ -72,11 +72,14 @@ namespace VariableAnnuity
         }
 
         public abstract List<double> GetPortfolioWeights();
-        public abstract void GrowFunds();
+        public abstract void ApplyReturns(List<double> fundsReturns);
         public abstract void AddDollarAmount(double amount);
+        public abstract void AddDollarAmount(int index, double amount);
+        public abstract void AddDollarAmount(string fundName, double amount);
         public abstract void AddPercentageAmount(double amountPercentage);
         public abstract void DeductDollarAmount(double amount);
         public abstract void DeductPercentageAmount(double amountPercentage);
+
         public abstract void Rebalance(List<double> weights);
 
     }

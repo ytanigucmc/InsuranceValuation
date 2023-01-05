@@ -9,6 +9,8 @@ namespace VariableAnnuity
     internal interface IContract
     {
         DateTime ContractDate { get; }
+
+        DateTime LastAnniversaryDate{get;}
         int ContractYear { get;}
         BasePolicyHolder ContractOwner { get;}
 

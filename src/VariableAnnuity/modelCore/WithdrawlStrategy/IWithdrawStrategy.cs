@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    public interface IFund: IMoneyAccount
+    internal interface IWithdrawStrategy
     {
-        string GetFundName();
-        void ApplyReturn(double fundReturn);
+        public double GetWithdrawlAmount();
     }
 }

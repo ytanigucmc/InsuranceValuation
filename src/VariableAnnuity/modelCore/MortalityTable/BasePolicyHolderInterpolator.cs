@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    public interface IFund: IMoneyAccount
+    public abstract class BasePolicyHolderInterpolator: IPolicyHolderInterpolator
     {
-        string GetFundName();
-        void ApplyReturn(double fundReturn);
+        public abstract double Interpolate(BasePolicyHolder holder);
     }
 }

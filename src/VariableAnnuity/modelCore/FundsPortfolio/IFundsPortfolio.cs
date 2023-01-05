@@ -15,8 +15,10 @@ namespace VariableAnnuity
         List<double> GetFundsAmounts();
         List<string> GetPortfolioAndFundsNames();
         List<double> GetPortfolioAndFundsAmounts();
-        void GrowFunds();
+        void ApplyReturns(List<double> fundsReturns);
         void AddDollarAmount(double amount);
+        void AddDollarAmount(int index, double amount);
+        void AddDollarAmount(string fundName, double amount);
         void AddPercentageAmount(double amountPercentage);
         void DeductDollarAmount(double amount);
         void DeductPercentageAmount(double amountPercentage);

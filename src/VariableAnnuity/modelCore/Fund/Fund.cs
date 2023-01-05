@@ -11,10 +11,9 @@ namespace VariableAnnuity
         public string FundName;
         protected BaseReturnGenerator PercentageReturnGenerator;
 
-        public Fund(string fundName, double startAmount, BaseReturnGenerator perentageReturnGenerator): base(startAmount)
+        public Fund(string fundName, double startAmount): base(startAmount)
         {
             FundName = fundName;
-            PercentageReturnGenerator = perentageReturnGenerator;
         }
 
         public string GetFundName()
@@ -22,9 +21,9 @@ namespace VariableAnnuity
             return FundName;
         }
 
-        public void GrowFund()
+        public void ApplyReturn(double fundReturn)
         {
-            AddPercentageAmount(PercentageReturnGenerator.GetReturn());
+            AddPercentageAmount(fundReturn);
         }
 
     }

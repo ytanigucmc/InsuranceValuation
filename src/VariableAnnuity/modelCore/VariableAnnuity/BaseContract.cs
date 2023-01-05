@@ -9,12 +9,14 @@ namespace VariableAnnuity
     public abstract class BaseContract: IContract
     {
         public DateTime ContractDate { get; protected set; }
+        public DateTime LastAnniversaryDate { get; protected set; }
         public int ContractYear { get; protected set; }
         public BasePolicyHolder ContractOwner { get; protected set; }
 
         public BaseContract(DateTime contractDate,BasePolicyHolder contractOwner)
         {
             ContractDate = contractDate;
+            LastAnniversaryDate = contractDate;
             ContractYear = 0;
             ContractOwner = contractOwner;
         }

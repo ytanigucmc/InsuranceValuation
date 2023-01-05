@@ -13,17 +13,18 @@ namespace VariableAnnuity
 {
     public enum MGWRRidePhase
     {
-        Initial,
         GrowthPhase,
         WithdrawPhase,
         AutomaticPeriodicBenefitStatus,
         LastDeath
     }
 
-    public class MGWBRider : BaseRiderBaseComputable, IContributionMadeHandlable, IFeePaidHandlable, IWithdrawMadeHandlable, IRiderChargeHandlable, IAnniversaryReachedHandlable
+    public class LifePayPlusMGWBRider : BaseRiderBaseComputable, IContributionMadeHandlable, IFeePaidHandlable, IWithdrawMadeHandlable, IRiderChargeHandlable, IAnniversaryReachedHandlable, IContractAgedByOneYearHandlable
     {
 
         public double StepUpRate { get; set; }
+
+        public double StepUpPeriod { get; set; }
 
         public bool StepUpEligibility { get; set; }
 
@@ -33,24 +34,27 @@ namespace VariableAnnuity
 
         public int DeathAge { get; set; }
 
-        public MGWRRidePhase RiderPhase = MGWRRidePhase.Initial;
+        public MGWRRidePhase RiderPhase = MGWRRidePhase.GrowthPhase;
 
         public IInterpolation MaximumAnnualWithdrawl { get; set; }
 
         private double CumulativeBaseAdjustment;
 
-        private double CumulativeContribution;
-
         private double CumulativeWithdraw;
 
-        public MGWBRider(double baseAmount, double chargeRate, double stepUpRate, int annuityCommencementAge ,IInterpolation maximumAnnualWithdrawl) : base(baseAmount, chargeRate)
+        public LifePayPlusMGWBRider(double baseAmount, double chargeRate, double stepUpRate, int stepUpPeirod ,int annuityCommencementAge, IInterpolation maximumAnnualWithdrawl) : base(baseAmount, chargeRate)
         {
             StepUpRate = stepUpRate;
+            StepUpPeriod = stepUpPeirod;
             MaximumAnnualWithdrawl = maximumAnnualWithdrawl;
             AnnuityCommencementAge = annuityCommencementAge;
             CumulativeBaseAdjustment = 0;
-            CumulativeContribution = 0;
             CumulativeWithdraw = 0;
+            RiderTypeName = RiderTypeNames.MGWB;
+            RiderName = "LifePayPlusMGWBRider";
+            DeathAge = 100;
+            StepUpEligibility = true;
+            RebalanceIndiactor = false;
         }
 
         private double GetWithdrawlExcessAllowance(double withdrawAmount, int age)
@@ -65,8 +69,11 @@ namespace VariableAnnuity
 
         public void OnCotributionMade(object source, DollarAmountEventArgs args)
         {
-            CumulativeBaseAdjustment += args.DollarAmount;
-            CumulativeContribution += args.DollarAmount;
+            if (args.DollarAmount < 0)
+            {
+                throw new Exception("Cannot make negative value contribution");
+            }
+            RiderBase.AddDollarAmount(args.DollarAmount);
 
         }
 
@@ -85,52 +92,81 @@ namespace VariableAnnuity
             CumulativeWithdraw += args.DollarAmount;
         }
 
+        public void OnContractAgedByOneYear(object source, EventArgs args)
+        {
+            BaseVariableAnnuity annuity = (BaseVariableAnnuity)source;
+            double contractValue = annuity.GetContractValue();
+            UpdateRiderPhase(annuity.ContractOwner.GetAge(), contractValue);
+            UpdateStepUpEligibility(annuity.ContractYear);
+            UpdateRebalanceIndicator();
+
+        }
+
         public void OnAnniversaryReached(object source, EventArgs args)
         {
             BaseVariableAnnuity annuity = (BaseVariableAnnuity)source;
             double contractValue = annuity.GetContractValue();
-            UpdateRiderBase(contractValue, annuity.ContractOwner.GetAge());
             UpdateRiderPhase(annuity.ContractOwner.GetAge(), contractValue);
+            UpdateRebalanceIndicator();
+            UpdateRiderBase(contractValue, annuity.ContractOwner.GetAge());
             CumulativeBaseAdjustment = 0;
-            CumulativeContribution = 0;
             CumulativeWithdraw = 0;
         }
 
         private void UpdateRiderBase(double contractValue, int age)
         {
             double excessWithdraw = GetWithdrawlExcessAllowance(CumulativeWithdraw, age);
-            double currentBaseAdjusted = RiderBase.GetDollarAmount() + CumulativeContribution - excessWithdraw;
+            double currentBaseAdjusted = RiderBase.GetDollarAmount() - excessWithdraw;
             double rachetBase = contractValue * Convert.ToInt32(RiderPhase == MGWRRidePhase.GrowthPhase);
-            double stepUpeBase = RiderBase.GetDollarAmount() * (1 + StepUpRate) * Convert.ToInt32(StepUpEligibility) + CumulativeBaseAdjustment - excessWithdraw;
+            double stepUpeBase = (RiderBase.GetDollarAmount() * (1 + StepUpRate) + CumulativeBaseAdjustment - excessWithdraw) * Convert.ToInt32(StepUpEligibility);
             RiderBase.SetDollarAmount(new double[] { currentBaseAdjusted, rachetBase, stepUpeBase }.Max());
+        }
+
+        private void UpdateRebalanceIndicator()
+        {
+            if (RiderPhase == MGWRRidePhase.WithdrawPhase || RiderPhase == MGWRRidePhase.AutomaticPeriodicBenefitStatus)
+            {
+                RebalanceIndiactor = true;
+            }
+
+            else
+            {
+                RebalanceIndiactor = false;
+            }
+        }
+
+        private void UpdateStepUpEligibility(int contractYear)
+        {
+            StepUpEligibility = (contractYear <= StepUpPeriod);
         }
 
         private void UpdateRiderPhase(int age, double contractValue)
         {
-            if (CumulativeWithdraw == 0 && age <= AnnuityCommencementAge && age  < DeathAge )
+
+            if (age >= DeathAge)
+            {
+                RiderPhase = MGWRRidePhase.LastDeath;
+            }
+
+            else if (CumulativeWithdraw == 0 && age <= AnnuityCommencementAge )
             {
                 RiderPhase = MGWRRidePhase.GrowthPhase;
             }    
 
 
-            else if ((CumulativeWithdraw > 0 || age > AnnuityCommencementAge || age > DeathAge) && contractValue > 0)
+            else if ((CumulativeWithdraw > 0 || age > AnnuityCommencementAge) &&  contractValue > 0)
             {
                 RiderPhase = MGWRRidePhase.WithdrawPhase;
             }
 
-            else if (age < DeathAge || RiderPhase == MGWRRidePhase.WithdrawPhase || contractValue == 0)
+            else if (RiderPhase == MGWRRidePhase.WithdrawPhase && contractValue == 0)
             {
                 RiderPhase = MGWRRidePhase.AutomaticPeriodicBenefitStatus;
             }
 
-            else if (age < DeathAge || RiderPhase == MGWRRidePhase.AutomaticPeriodicBenefitStatus)
+            else if (RiderPhase == MGWRRidePhase.AutomaticPeriodicBenefitStatus)
             {
                 RiderPhase = MGWRRidePhase.AutomaticPeriodicBenefitStatus;
-            }
-
-            else if (age == DeathAge)
-            {
-                RiderPhase = MGWRRidePhase.LastDeath;
             }
 
             else

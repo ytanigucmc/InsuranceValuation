@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    public interface IFund: IMoneyAccount
+    public interface ICashflowGenearionEngine
     {
-        string GetFundName();
-        void ApplyReturn(double fundReturn);
+        DataTable GenerateCashflowRecords();
     }
 }
