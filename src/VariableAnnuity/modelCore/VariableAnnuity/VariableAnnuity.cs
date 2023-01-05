@@ -23,13 +23,9 @@ namespace VariableAnnuity
 
         public override double GetFeeAmount()
         {
-            return GetFeeAmount(GetContractValue());
+            return GetContractValue() * (MortalityExpenseRiskCharge + FundFees);
         }
 
-        public override double GetFeeAmount(double contractValue)
-        {
-            return contractValue * (MortalityExpenseRiskCharge + FundFees);
-        }
 
         public double GetRiderChargeAmount()
         {

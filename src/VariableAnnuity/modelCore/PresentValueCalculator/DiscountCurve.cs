@@ -7,7 +7,7 @@ using VariableAnnuity.modelCore.PresentValueCalculator;
 
 namespace VariableAnnuity
 {
-    internal class FlatRateDiscountCurve: IDiscountCurve
+    public class FlatRateDiscountCurve: IDiscountCurve
     {
         public double Rate;
         public FlatRateDiscountCurve(double flatRate)
@@ -17,7 +17,7 @@ namespace VariableAnnuity
 
         public double GetDF(double t)
         {
-            return Math.Pow(1+ Rate, t);
+            return Math.Pow(1+ Rate, -t);
         }
     }
 }

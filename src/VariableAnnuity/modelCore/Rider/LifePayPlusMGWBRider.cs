@@ -42,7 +42,7 @@ namespace VariableAnnuity
 
         private double CumulativeWithdraw;
 
-        public LifePayPlusMGWBRider(double baseAmount, double chargeRate, double stepUpRate, int stepUpPeirod ,int annuityCommencementAge, IInterpolation maximumAnnualWithdrawl) : base(baseAmount, chargeRate)
+        public LifePayPlusMGWBRider(double baseAmount, double chargeRate, double stepUpRate, int stepUpPeirod ,int annuityCommencementAge, IInterpolation maximumAnnualWithdrawl, int deathAge) : base(baseAmount, chargeRate)
         {
             StepUpRate = stepUpRate;
             StepUpPeriod = stepUpPeirod;
@@ -52,7 +52,7 @@ namespace VariableAnnuity
             CumulativeWithdraw = 0;
             RiderTypeName = RiderTypeNames.MGWB;
             RiderName = "LifePayPlusMGWBRider";
-            DeathAge = 100;
+            DeathAge = deathAge;
             StepUpEligibility = true;
             RebalanceIndiactor = false;
         }

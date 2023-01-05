@@ -11,46 +11,9 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    public class VariableAnnuityCashflowRecorder
+    public class LifePayPlusRecorder: RecordHolder
     {
-        public List<List<(string, object)>> AllRecords;
-        public List<(string, object)> record; 
-        public VariableAnnuityCashflowRecorder()
-        {
-            AllRecords = new List<List<(string, object)>>();
-            record = new List<(string, object)> ();
-        }
-
-        public List<(string, object)> GetCurrentRecord()
-        {
-            return record;
-        }
-
-        public void PushCurrentRecord()
-        {
-            AllRecords.Add(record);
-            record = new List<(string, object)>();
-        }
-
-        public void StartNewRecord()
-        {
-            record = new List<(string, object)>();
-        }
-
-        public void AddElement(string key, object value)
-        {
-            record.Add((key, value));
-        }
-
-        public void AddDateTime(string key, DateTime value, string formatString= "yyyy/MM/dd")
-        {
-            record.Add((key, value.ToString(formatString)));
-        }
-         public void AddBoolAsOneZeoro(string key, bool value)
-        {
-            AddElement(key, value ? 1:0);
-        }
-
+        public LifePayPlusRecorder():base() { } 
 
         public void AddFundsData(BaseVariableAnnuity annuity, string suffix = "")
         {

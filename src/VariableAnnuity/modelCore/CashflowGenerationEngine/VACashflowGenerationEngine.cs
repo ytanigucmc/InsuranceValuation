@@ -6,7 +6,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using VariableAnnuity.modelCore.Rider;
+using VariableAnnuity;
 
 namespace VariableAnnuity.modelCore.CashflowGenerationEngine
 {
@@ -14,16 +14,15 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
     {
         IInterpolation WithdrawlScheule;
         BasePolicyHolderInterpolator MortalityTable;
-        public VariableAnnuityCashflowRecorder recorder;
-        private double contractValueLastYear;
+        public LifePayPlusRecorder recorder;
         private List<BaseRiderBaseComputable> deathBenefitRiders;
         private LifePayPlusMGWBRider MGWBRider;
         private ReturnOfPremiumDeathBenefitRider RoPDeathBenefitRider;
         private LifePayPlusDeathBenefitRider LifePlusDeathBenefitRider;
-        private bool RebalanceIndicator;
         private double DeathPaymentBase;
         private double DeathPaymentAmount;
-        private double PortValuePostDeathPayment;
+        private double LastPortValuePostDeathPayment;
+        private double ThisPortValuePostDeathPayment;
         private double WithdrawlAmount;
         private double MaxWithdrawlAmount;
         private double MaxWithdrawlRate;
@@ -36,13 +35,11 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
         {
             WithdrawlScheule = withdrawlSchedule;
             MortalityTable = mortalityTable;
-            recorder = new VariableAnnuityCashflowRecorder();
-            contractValueLastYear = Annuity.GetContractValue();
+            recorder = new LifePayPlusRecorder();
             deathBenefitRiders = (from rider in annuity.Riders where rider.GetRiderTypeName() == RiderTypeNames.DeathBenefit select (BaseRiderBaseComputable)rider).ToList();
             RoPDeathBenefitRider = (ReturnOfPremiumDeathBenefitRider)(from rider in annuity.Riders where rider.GetRiderName() == "ReturnOfPremiumDeathBenefitRider" select rider).ToList()[0];
             LifePlusDeathBenefitRider = (LifePayPlusDeathBenefitRider)(from rider in annuity.Riders where rider.GetRiderName() == "LifePayPlusDeathBenefitRider" select rider).ToList()[0];
             MGWBRider = (LifePayPlusMGWBRider)(from rider in annuity.Riders where rider.GetRiderTypeName() == RiderTypeNames.MGWB select rider).ToList()[0];
-            RebalanceIndicator = MGWBRider.RebalanceIndiactor;
         }
 
         public override DataTable GenerateCashflowRecords()
@@ -78,6 +75,7 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
 
             DataTable dt = recorder.ToDataTale();
             dt.ToCSV("D:\\variable_annuity\\output\\output.csv");
+
             return dt;
         }
 
@@ -170,7 +168,8 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
             DeathPaymentAmount = DeathPaymentBase * MortalityTable.Interpolate(Annuity.ContractOwner);
             DeathClaimAmount = Math.Max(DeathPaymentAmount - Annuity.GetContractValue(), 0);
             Annuity.Funds.DeductDollarAmount(DeathPaymentAmount);
-            PortValuePostDeathPayment = Annuity.GetContractValue();
+            LastPortValuePostDeathPayment = ThisPortValuePostDeathPayment;
+            ThisPortValuePostDeathPayment = Annuity.GetContractValue();
             recorder.AddElement("Death Payments", DeathPaymentAmount);
             recorder.AddFundsData(Annuity, "Post-Death Claims");
         }
@@ -188,7 +187,6 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
                 Annuity.Funds.AddDollarAmount(1, DeathPaymentAmount);
             }
             recorder.AddFundsData(Annuity, "Post-Rebalance");
-            contractValueLastYear = Annuity.GetContractValue();
         }
 
         private void UpdateOnAnniversaryReached()
@@ -206,9 +204,9 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
             recorder.AddElement("Withdrawal Base", MGWBRider.GetBaseAmount());
             recorder.AddElement("Withdrawal Amount_", WithdrawlAmount);
             recorder.AddElement("Cumulative Withdrawal", CumulativeWithdrawl);
-            recorder.AddElement("Death Claims", Math.Max(WithdrawlAmount - PortValuePostDeathPayment, 0));
             recorder.AddElement("Maximum Annual Withdrawal", MaxWithdrawlAmount);
             recorder.AddElement("Maximum Annual Withdrawal Rate", MaxWithdrawlRate);
+            recorder.AddElement("Withdrawl Claims", Math.Max(WithdrawlAmount - LastPortValuePostDeathPayment, 0));
             recorder.AddLifePlusPhaseIndicators(MGWBRider);
             recorder.AddFundsReturn(Annuity, fundsReturns);
             recorder.AddBoolAsOneZeoro("Rebalance Indicatot", MGWBRider.RebalanceIndiactor);

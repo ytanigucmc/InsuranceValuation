@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity.modelCore.PresentValueCalculator
 {
-    internal interface IDiscountCurve
+    public interface IDiscountCurve
     {
         double GetDF(double t);
     }

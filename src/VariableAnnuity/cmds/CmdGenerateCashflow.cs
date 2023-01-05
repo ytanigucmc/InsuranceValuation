@@ -49,23 +49,21 @@ namespace VariableAnnuity
             IInterpolation simulationWithdrawRates = new StepInterpolation(new double[] { 0, 71, 76, 80 }, new double[] { 0, 0.05, 0.06, 0.07 });
             BaseRider returnOfPremiumDeathRider = new ReturnOfPremiumDeathBenefitRider(initialPremium, 0);
             BaseRider lifePlusDeathRider = new LifePayPlusDeathBenefitRider(initialPremium, 0);
-            BaseRider lifePlusMGWBRider = new LifePayPlusMGWBRider(initialPremium, riderChargeRate, stepUpRate, stepUpPeriod ,annuityCommenceAge, maxWithdrawRates);
+            BaseRider lifePlusMGWBRider = new LifePayPlusMGWBRider(initialPremium, riderChargeRate, stepUpRate, stepUpPeriod, annuityCommenceAge, maxWithdrawRates, lastDeathAge);
             List<BaseRider> riders = new List<BaseRider> { returnOfPremiumDeathRider, lifePlusDeathRider, lifePlusMGWBRider };
 
             BasePolicyHolder policyHolder = new PolicyHolder(60);
             BasePolicyHolder annuiant = policyHolder;
             BaseVariableAnnuity annuity = new VariableAnnuity(contractDate, policyHolder, annuityCommenceAge, annuiant, mortalityRiskCharge, fundFees, funds, riders);
-            BasePolicyHolderInterpolator mortalityTable = new ConstantPolicyHolderInterpolator(0.005);
+            BasePolicyHolderInterpolator mortalityTable = new ConstantPolicyHolderInterpolator(mortalityRate);
 
-            int startYear = policyHolder.GetAge();
             LifePlusVACashflowGenerationEngine simulationEngine = new LifePlusVACashflowGenerationEngine(annuity, returnGenerators, simulationWithdrawRates, mortalityTable);
             DataTable cashflowRecords = simulationEngine.GenerateCashflowRecords();
-            var a = cashflowRecords.Rows[0]["year"];
 
             IDiscountCurve discountCurve = new FlatRateDiscountCurve(riskFreeRate);
-            List<int> years = cashflowRecords.AsEnumerable().Select(item => item.Field<int>("year")).ToList();
-            List<double> deathClaims = cashflowRecords.AsEnumerable().Select(item => item.Field<double>("Death Claims")).ToList();
-            List<double> riderCharges = cashflowRecords.AsEnumerable().Select(item => item.Field<double>("RiderCharged")).ToList();
+            PVCalculationEngine PVEngine = new PVCalculationEngine(discountCurve);
+            List<string> headerPVCalculation = new List<string>() { "NAR Death Claims", "Withdrawl Claims", "Rider Charges" };
+            List<double> PVs = PVEngine.FromDataTable(cashflowRecords, "year", headerPVCalculation);
         }
 
     }
