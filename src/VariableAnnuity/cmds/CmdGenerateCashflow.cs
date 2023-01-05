@@ -21,7 +21,7 @@ namespace VariableAnnuity
             VariableAnnuityConfig config = new VariableAnnuityConfig(config_file);
 
             double riskFreeRate = 0.03;
-            double volatility = 0.11;
+            double volatility = 0.16;
             double initialPremium = 100000;
             double riderChargeRate = 0.0085;
             double stepUpRate = 0.06;
@@ -63,7 +63,10 @@ namespace VariableAnnuity
             IDiscountCurve discountCurve = new FlatRateDiscountCurve(riskFreeRate);
             PVCalculationEngine PVEngine = new PVCalculationEngine(discountCurve);
             List<string> headerPVCalculation = new List<string>() { "NAR Death Claims", "Withdrawl Claims", "Rider Charges" };
-            List<double> PVs = PVEngine.FromDataTable(cashflowRecords, "year", headerPVCalculation);
+            List<string> newHeaderPVCalculation = new List<string>() { "PV_DB_Claim", "PV_WB_Claim", "PV_RC" };
+            DataTable PVs = PVEngine.FromDataTable(cashflowRecords, "year", headerPVCalculation, newHeaderPVCalculation);
+            cashflowRecords.ToCSV("D:\\variable_annuity\\output\\output.csv");
+            PVs.ToCSV("D:\\variable_annuity\\output\\output2.csv");
         }
 
     }

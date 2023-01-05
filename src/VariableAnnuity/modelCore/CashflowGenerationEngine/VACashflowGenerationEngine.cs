@@ -74,7 +74,6 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
             }
 
             DataTable dt = recorder.ToDataTale();
-            dt.ToCSV("D:\\variable_annuity\\output\\output.csv");
 
             return dt;
         }

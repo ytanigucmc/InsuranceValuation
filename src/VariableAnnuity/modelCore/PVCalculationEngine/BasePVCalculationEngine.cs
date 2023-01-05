@@ -11,6 +11,6 @@ namespace VariableAnnuity
     {
         public BasePVCalculationEngine() { }
 
-        public abstract List<double> FromDataTable(DataTable dt, string labelForTime, List<string> itmesForPV);
+        public abstract DataTable FromDataTable(DataTable dt, string labelForTime, List<string> itmesForPV, List<string> newHeaders);
     }
 }

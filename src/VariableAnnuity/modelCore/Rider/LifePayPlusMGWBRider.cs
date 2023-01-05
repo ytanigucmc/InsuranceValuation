@@ -6,7 +6,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VariableAnnuity.modelCore.Rider;
 using VariableAnnuity.modelCore.VariableAnnuity.EventHandlerInterfaces;
 
 namespace VariableAnnuity

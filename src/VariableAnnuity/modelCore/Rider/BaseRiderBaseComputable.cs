@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VariableAnnuity.modelCore.Rider
+namespace VariableAnnuity
 {
     public abstract class BaseRiderBaseComputable: BaseRider, IBaseComputable
     {

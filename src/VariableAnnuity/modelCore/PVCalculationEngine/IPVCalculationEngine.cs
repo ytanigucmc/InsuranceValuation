@@ -9,6 +9,6 @@ namespace VariableAnnuity
 {
     public interface IPVCalculationEngine
     {
-        List<double> FromDataTable(DataTable dt, string labelForTime, List<string> itmesForPV);
+        DataTable FromDataTable(DataTable dt, string labelForTime, List<string> itmesForPV, List<string> newHeaders);
     }
 }
