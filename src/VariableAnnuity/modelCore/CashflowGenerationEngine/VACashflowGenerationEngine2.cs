@@ -28,7 +28,6 @@ namespace VariableAnnuity
         private double MaxWithdrawlRate;
         private double CumulativeWithdrawl;
         private double DeathClaimAmount;
-        private double FeeAmount;
         private List<double> fundsReturns;
 
         public LifePlusVACashflowGenerationEngine2(ILifePayPlusVariableAnnuity annuity, List<BaseReturnGenerator> returnGenerators, IInterpolation withdrawlSchedule, BasePolicyHolderInterpolator mortalityTable, WithdrawlStrategy withdrawlStrat) : base(annuity, returnGenerators)
@@ -99,8 +98,7 @@ namespace VariableAnnuity
         private void AgeContractByOneYear()
         {
             Annuity.AgeContractByOneYear();
-            DeathPaymentBase = (from rider in deathBenefitRiders select ((IBaseComputable)rider).GetBaseAmount()).Max();
-
+            DeathPaymentBase = Annuity.GetDeathBenefitBases().Max(); 
         }
 
         private void DiscountRiderBases()
@@ -149,7 +147,6 @@ namespace VariableAnnuity
         {
             DeathPaymentAmount = DeathPaymentBase * MortalityTable.Interpolate(Annuity.ContractOwner);
             DeathClaimAmount = Math.Max(DeathPaymentAmount - Annuity.GetContractValue(), 0);
-            //Annuity.Funds.DeductDollarAmount(DeathPaymentAmount);
             Annuity.TakeDeathPayment(DeathPaymentAmount);
             LastPortValuePostDeathPayment = ThisPortValuePostDeathPayment;
             ThisPortValuePostDeathPayment = Annuity.GetContractValue();
@@ -162,20 +159,12 @@ namespace VariableAnnuity
         {
 
             Annuity.RebalanceFunds(targetWeights);
-
-
-            if (Annuity.GetContractValue() > 0)
-            {
-                //Annuity.Funds.AddDollarAmount(1, DeathPaymentAmount);
-            }
             recorder.AddFundsData(Annuity, "Post-Rebalance");
         }
 
         private void UpdateOnAnniversaryReached()
         {
             Annuity.UpdateOnAnniversaryReached();
-            DeathPaymentBase = Math.Max(RoPDeathBenefitRider.GetBaseAmount(), LifePlusDeathBenefitRider.GetBaseAmount());
-            double DeathPaymentBase2 = (from rider in deathBenefitRiders select ((IBaseComputable)rider).GetBaseAmount()).Max();
         }
 
         private void RecordRidersInfo()
@@ -184,7 +173,7 @@ namespace VariableAnnuity
             recorder.AddElement("ROP Death Base", RoPDeathBenefitRider.GetBaseAmount());
             recorder.AddElement("NAR Death Claims", DeathClaimAmount);
             recorder.AddElement("Death Benefit base", LifePlusDeathBenefitRider.GetBaseAmount());
-            recorder.AddElement("Withdrawal Base", MGWBRider.GetBaseAmount());
+            recorder.AddElement("Withdrawal Base", Annuity.GetWtihdrawlBase());
             recorder.AddElement("Withdrawal Amount_", WithdrawlAmount);
             recorder.AddElement("Cumulative Withdrawal", CumulativeWithdrawl);
             recorder.AddElement("Maximum Annual Withdrawal", MaxWithdrawlAmount);
@@ -192,7 +181,7 @@ namespace VariableAnnuity
             recorder.AddElement("Withdrawl Claims", Math.Max(WithdrawlAmount - LastPortValuePostDeathPayment, 0));
             recorder.AddLifePlusPhaseIndicators(MGWBRider);
             recorder.AddFundsReturn(Annuity, fundsReturns);
-            recorder.AddBoolAsOneZeoro("Rebalance Indicator", MGWBRider.RebalanceIndiactor);
+            recorder.AddBoolAsOneZeoro("Rebalance Indicator", Annuity.IsRebalance());
             recorder.AddElement("qx", MortalityTable.Interpolate(Annuity.ContractOwner));
         }
     }

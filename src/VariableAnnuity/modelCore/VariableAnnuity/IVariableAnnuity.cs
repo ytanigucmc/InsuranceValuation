@@ -47,6 +47,8 @@ namespace VariableAnnuity
 
         void TakeDeathPayment(double amount);
 
+        bool IsRebalance();
+
         List<double> GetDeathBenefitBases();
 
         List<double> GetWtihdrawlBases();
