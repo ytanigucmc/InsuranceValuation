@@ -1,6 +1,6 @@
 {
 	"Paths": {
-		"output_dir": "D:\\variable_annuity\\Results\\Replications\\",
+		"output_dir": ".\\",
 		"output_suffix": "5",
 		"FixRandom": true,
 		"PathFundReturns": "D:\\variable_annuity\\InsuranceValuation\\src\\VariableAnnuity\\params\\Fund2Returns\\Returns5.csv"
