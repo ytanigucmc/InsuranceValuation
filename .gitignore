@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 #Include paramter files
 InsuranceValuation/src/VariableAnnuity/params/Fund2Returns/*
+InsuranceValuation/src/VariableAnnuity/Runnerable/*
