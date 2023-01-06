@@ -134,7 +134,7 @@ namespace VariableAnnuity
         {
             double excessWithdraw = GetWithdrawlExcessAllowance(CumulativeWithdraw, age);
             double currentBaseAdjusted = RiderBase.GetDollarAmount() - excessWithdraw;
-            double rachetBase = (contractValue + CumulativeDeathPayment) * Convert.ToInt32(RiderPhase == MGWRRiderPhase.GrowthPhase) ;
+            double rachetBase = (contractValue - CumulativeDeathPayment) * Convert.ToInt32(RiderPhase == MGWRRiderPhase.GrowthPhase) ;
             double stepUpeBase = (RiderBase.GetDollarAmount() * (1 + StepUpRate) + CumulativeBaseAdjustment - excessWithdraw) * Convert.ToInt32(StepUpEligibility);
             RiderBase.SetDollarAmount(new double[] { currentBaseAdjusted, rachetBase, stepUpeBase }.Max());
         }

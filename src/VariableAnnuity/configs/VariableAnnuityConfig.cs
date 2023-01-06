@@ -28,6 +28,11 @@ namespace VariableAnnuity.configs
             return (string)sections["Paths"]["output_dir"];
         }
 
+        public string GetOutputSuffix()
+        {
+            return (string)sections["Paths"]["output_suffix"];
+        }
+
         public bool IsFixRandom()
         {
             return (bool)sections["Paths"]["FixRandom"];
