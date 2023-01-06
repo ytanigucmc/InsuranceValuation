@@ -56,7 +56,7 @@ namespace VariableAnnuity
             BasePolicyHolderInterpolator mortalityTable = new ConstantPolicyHolderInterpolator(config.GetMortalityRate());
             WithdrawlStrategy withdrawStrategy = new WithdrawlStrategy(annuity, config.GetWithdrawlRate(), config.GetFirstWithdrawAge(), config.GetLastDeathAge());
 
-            LifePlusVACashflowGenerationEngine simulationEngine = new LifePlusVACashflowGenerationEngine(annuity, returnGenerators, simulationWithdrawRates, mortalityTable, withdrawStrategy);
+            LifePlusVACashflowGenerationEngine simulationEngine = new LifePlusVACashflowGenerationEngine(annuity, returnGenerators, simulationWithdrawRates, mortalityTable, withdrawStrategy, new List<double>() { config.GetTargetFixedFundAllocation(), 1- config.GetTargetFixedFundAllocation() });
             DataTable cashflowRecords = simulationEngine.GenerateCashflowRecords();
 
             IDiscountCurve discountCurve = new FlatRateDiscountCurve(config.GetRiskFreeRate());

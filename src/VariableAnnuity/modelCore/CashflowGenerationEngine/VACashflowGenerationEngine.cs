@@ -11,9 +11,9 @@ namespace VariableAnnuity
 {
     public class LifePlusVACashflowGenerationEngine : BaseVACashflowGenerationEngine
     {
-        private BasePolicyHolderInterpolator MortalityTable;
-        private WithdrawlStrategy WithdrawlStrat;
+
         public LifePayPlusRecorder recorder;
+        private List<double> TargetWeights;
         private LifePayPlusMGWBRider MGWBRider;
         private double FeesBase;
         private double DeathPaymentBase;
@@ -26,19 +26,21 @@ namespace VariableAnnuity
         private double CumulativeWithdrawl;
         private double DeathClaimAmount;
         private List<double> fundsReturns;
+        private BasePolicyHolderInterpolator MortalityTable;
+        private WithdrawlStrategy WithdrawlStrat;
 
-        public LifePlusVACashflowGenerationEngine(ILifePayPlusVariableAnnuity annuity, List<BaseReturnGenerator> returnGenerators, IInterpolation withdrawlSchedule, BasePolicyHolderInterpolator mortalityTable, WithdrawlStrategy withdrawlStrat) : base(annuity, returnGenerators)
+        public LifePlusVACashflowGenerationEngine(ILifePayPlusVariableAnnuity annuity, List<BaseReturnGenerator> returnGenerators, IInterpolation withdrawlSchedule, BasePolicyHolderInterpolator mortalityTable, WithdrawlStrategy withdrawlStrat, List<double> targetWeights) : base(annuity, returnGenerators)
         {
             MortalityTable = mortalityTable;
             recorder = new LifePayPlusRecorder();
             MGWBRider = (LifePayPlusMGWBRider)annuity.WithdrawlRider;
             FeesBase = Annuity.GetContractValue();
             WithdrawlStrat = withdrawlStrat;
+            TargetWeights = targetWeights;
         }
 
         public override DataTable GenerateCashflowRecords()
         {
-            List<double> targetWeights = new List<double> { 0.2, 0.8 };
 
             int year = 0;
             int lastDeathAge = 100;
@@ -60,7 +62,7 @@ namespace VariableAnnuity
                 MakeWithdrawl();
                 PayRiderCharge();
                 MakeDeathPayments();
-                RebalanceFunds(targetWeights);
+                RebalanceFunds(TargetWeights);
                 UpdateOnAnniversaryReached();
                 RecordRidersInfo();
                 recorder.PushCurrentRecord();
