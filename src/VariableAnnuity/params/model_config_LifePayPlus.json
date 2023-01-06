@@ -1,9 +1,9 @@
 {
 	"Paths": {
 		"output_dir": "D:\\variable_annuity\\Results\\Replications\\",
-		"output_suffix":  "5",
+		"output_suffix": "5",
 		"FixRandom": true,
-		"PathFundReturns": "D:\\variable_annuity\\params\\Fund2Returns\\Returns5.csv"
+		"PathFundReturns": "D:\\variable_annuity\\InsuranceValuation\\src\\VariableAnnuity\\params\\Fund2Returns\\Returns5.csv"
 	},
 	"ModelAssumptions": {
 		"Product": "ING LifePay Plus Base",

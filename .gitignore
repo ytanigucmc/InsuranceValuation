@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+#Include paramter files
+InsuranceValuation/src/VariableAnnuity/params/Fund2Returns/*
