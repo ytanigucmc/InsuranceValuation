@@ -23,10 +23,35 @@ namespace VariableAnnuity.configs
                 sections = _sections;
         }
 
-        public string GetOutputPath()
+        public string GetOutputDir()
         {
-            return (string)sections["Paths"]["output_file"];
+            return (string)sections["Paths"]["output_dir"];
         }
+
+        public bool IsFixRandom()
+        {
+            return (bool)sections["Paths"]["FixRandom"];
+        }
+
+        public string GetPathFundReturns()
+        {
+            return (string)sections["Paths"]["PathFundReturns"];
+        }
+
+        public List<double> ParseRandomReturns()
+        {
+            try
+            {
+                string[] lines = System.IO.File.ReadAllLines((string)sections["Paths"]["PathFundReturns"]);
+                return lines.Select(x => double.Parse(x)).ToList();
+            }
+            catch (Exception e)
+            {
+                return ReturnsSaved.Returns;
+            }
+
+        }
+
 
         public double GetStepUp()
         {
@@ -111,7 +136,7 @@ namespace VariableAnnuity.configs
             return ParseNumericString(str_to_parse);
         }
 
-        public double GetVolatilitye()
+        public double GetVolatility()
         {
             string str_to_parse = (string)sections["ModelAssumptions"]["Volatility"];
             return ParseNumericString(str_to_parse);
@@ -131,6 +156,9 @@ namespace VariableAnnuity.configs
             return (ages, rates);
         }
 
+        
+
+
 
         private double ParseNumericString(string value)
         {
@@ -143,6 +171,8 @@ namespace VariableAnnuity.configs
                 return double.Parse(value);
             }
         }
+
+        
 
         
     }
