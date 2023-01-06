@@ -14,10 +14,7 @@ namespace VariableAnnuity
         private BasePolicyHolderInterpolator MortalityTable;
         private WithdrawlStrategy WithdrawlStrat;
         public LifePayPlusRecorder recorder;
-        private List<BaseRiderBaseComputable> deathBenefitRiders;
         private LifePayPlusMGWBRider MGWBRider;
-        private ReturnOfPremiumDeathBenefitRider RoPDeathBenefitRider;
-        private LifePayPlusDeathBenefitRider LifePlusDeathBenefitRider;
         private double FeesBase;
         private double DeathPaymentBase;
         private double DeathPaymentAmount;
@@ -34,10 +31,7 @@ namespace VariableAnnuity
         {
             MortalityTable = mortalityTable;
             recorder = new LifePayPlusRecorder();
-            deathBenefitRiders = (from rider in annuity.Riders where rider.GetRiderTypeName() == RiderTypeNames.DeathBenefit select (BaseRiderBaseComputable)rider).ToList();
-            RoPDeathBenefitRider = (ReturnOfPremiumDeathBenefitRider)(from rider in annuity.Riders where rider.GetRiderName() == "ReturnOfPremiumDeathBenefitRider" select rider).ToList()[0];
-            LifePlusDeathBenefitRider = (LifePayPlusDeathBenefitRider)(from rider in annuity.Riders where rider.GetRiderName() == "LifePayPlusDeathBenefitRider" select rider).ToList()[0];
-            MGWBRider = (LifePayPlusMGWBRider)(from rider in annuity.Riders where rider.GetRiderTypeName() == RiderTypeNames.MGWB select rider).ToList()[0];
+            MGWBRider = (LifePayPlusMGWBRider)annuity.WithdrawlRider;
             FeesBase = Annuity.GetContractValue();
             WithdrawlStrat = withdrawlStrat;
         }
@@ -170,9 +164,9 @@ namespace VariableAnnuity
         private void RecordRidersInfo()
         {
 
-            recorder.AddElement("ROP Death Base", RoPDeathBenefitRider.GetBaseAmount());
+            recorder.AddElement("ROP Death Base", Annuity.GetDeathBenefitBases()[0]);
             recorder.AddElement("NAR Death Claims", DeathClaimAmount);
-            recorder.AddElement("Death Benefit base", LifePlusDeathBenefitRider.GetBaseAmount());
+            recorder.AddElement("Death Benefit base", Annuity.GetDeathBenefitBases()[1]);
             recorder.AddElement("Withdrawal Base", Annuity.GetWtihdrawlBase());
             recorder.AddElement("Withdrawal Amount_", WithdrawlAmount);
             recorder.AddElement("Cumulative Withdrawal", CumulativeWithdrawl);
