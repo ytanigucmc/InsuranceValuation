@@ -7,7 +7,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using VariableAnnuity.configs;
-using VariableAnnuity.modelCore.CashflowGenerationEngine;
 using VariableAnnuity.modelCore.PresentValueCalculator;
 using VariableAnnuity.modelCore.VariableAnnuity;
 
@@ -57,7 +56,7 @@ namespace VariableAnnuity
             BasePolicyHolderInterpolator mortalityTable = new ConstantPolicyHolderInterpolator(config.GetMortalityRate());
             WithdrawlStrategy withdrawStrategy = new WithdrawlStrategy(annuity, config.GetWithdrawlRate(), config.GetFirstWithdrawAge(), config.GetLastDeathAge());
 
-            LifePlusVACashflowGenerationEngine2 simulationEngine = new LifePlusVACashflowGenerationEngine2(annuity, returnGenerators, simulationWithdrawRates, mortalityTable, withdrawStrategy);
+            LifePlusVACashflowGenerationEngine simulationEngine = new LifePlusVACashflowGenerationEngine(annuity, returnGenerators, simulationWithdrawRates, mortalityTable, withdrawStrategy);
             DataTable cashflowRecords = simulationEngine.GenerateCashflowRecords();
 
             IDiscountCurve discountCurve = new FlatRateDiscountCurve(config.GetRiskFreeRate());

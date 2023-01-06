@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="cmds\CmdGenerateCashflow.cs" />
     <Compile Remove="modelCore\VariableAnnuity\BaseLifePayPlusVariableAnnuity.cs" />
     <Compile Remove="modelCore\VariableAnnuity\LifePayPlusMGBRRider.cs" />
     <Compile Remove="modelCore\VariableAnnuity\VariableAnnuity2.cs" />
