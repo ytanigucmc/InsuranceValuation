@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal interface IVariableAnnuity: IContract
+    public interface IVariableAnnuity: IContract
     {
         int AnnuityStartAge { get;}
         BasePolicyHolder Annuiant { get;}
@@ -15,23 +15,41 @@ namespace VariableAnnuity
         BaseFundsPortfolio Funds { get;}
         List<BaseRider> Riders { get; }
 
+        void SetRiders(List<BaseRider> riders);
+
+
         double GetFeeAmount();
 
-        void PayFee(double amount);
+        double GetFeeAmount(double baseValue);
 
-        double CalculateRiderChargeAmount();
+        double GetRiderChargeAmount();
 
-        void PayRiderCharge(double amount);
+        double GetRiderChargeAmount(double baseValue);
 
-        void ContributeDollarAmount(double amount);
+        void PayFee(double feeAmount);
 
-        void WithdrawDollarAmount(double amount);
+        void PayRiderCharge(double chargeAmont);
+
+        void ContributeDollarAmount(double contributionAmount);
+
+        void WithdrawDollarAmount(double withdrawAmount);
 
         void RebalanceFunds(List<double> targetWeights);
 
         void DeductPerentageAmountRiderBases(double percentage);
 
+         void ApplyFundsReturns(List<double> fundReturns);
 
+        double GetMaximumWithdrawlAllowance();
+
+        double GetMaximumWithdrawlRate();
+        double GetDeathPayemntAmount(double rate);
+
+        void TakeDeathPayment(double amount);
+
+        List<double> GetDeathBenefitBases();
+
+        List<double> GetWtihdrawlBases();
 
     }
 }

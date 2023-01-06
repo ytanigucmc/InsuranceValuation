@@ -9,7 +9,7 @@ namespace VariableAnnuity
 {
 
 
-    public class ReturnOfPremiumDeathBenefitRider: BaseRiderBaseComputable
+    public class ReturnOfPremiumDeathBenefitRider: BaseDeathBenefitRider
     {
         public ReturnOfPremiumDeathBenefitRider(double baseAmount, double chargeRate): base(baseAmount, chargeRate)
         {
@@ -18,7 +18,7 @@ namespace VariableAnnuity
         }
     }
 
-    public class LifePayPlusDeathBenefitRider : BaseRiderBaseComputable, IContributionMadeHandlable, IFeePaidHandlable, IWithdrawMadeHandlable, IRiderChargeHandlable, IAnniversaryReachedHandlable
+    public class LifePayPlusDeathBenefitRider : BaseDeathBenefitRider, IContributionMadeHandlable, IFeePaidHandlable, IWithdrawMadeHandlable, IRiderChargeHandlable, IAnniversaryReachedHandlable
     {
         private double CumulativeWithdrawAmountLastYear;
 

@@ -61,7 +61,7 @@ namespace VariableAnnuity.configs
 
         public int GetFirstWithdrawAge()
         {
-            return (int)sections["ModelAssumptions"]["First Withdrawal Age"];
+            return (int)sections["ModelAssumptions"]["First Withdrawl Age"];
         }
 
 

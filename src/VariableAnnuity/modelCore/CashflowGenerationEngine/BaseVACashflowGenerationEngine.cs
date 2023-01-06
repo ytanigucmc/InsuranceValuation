@@ -18,4 +18,16 @@ namespace VariableAnnuity
         }
         public abstract DataTable GenerateCashflowRecords();
     }
+
+    public abstract class BaseVACashflowGenerationEngine2
+    {
+        public ILifePayPlusVariableAnnuity Annuity;
+        public List<BaseReturnGenerator> ReturnGenerators;
+        public BaseVACashflowGenerationEngine2(ILifePayPlusVariableAnnuity annuity, List<BaseReturnGenerator> returnGenerators)
+        {
+            Annuity = annuity;
+            ReturnGenerators = returnGenerators;
+        }
+        public abstract DataTable GenerateCashflowRecords();
+    }
 }

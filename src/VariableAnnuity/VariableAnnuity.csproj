@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="cmds\CmdGenerateCashflow.cs" />
+    <Compile Remove="modelCore\VariableAnnuity\BaseLifePayPlusVariableAnnuity.cs" />
+    <Compile Remove="modelCore\VariableAnnuity\LifePayPlusMGBRRider.cs" />
+    <Compile Remove="modelCore\VariableAnnuity\VariableAnnuity2.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="SwiftExcel" Version="1.0.14" />

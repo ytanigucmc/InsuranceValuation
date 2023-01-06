@@ -6,14 +6,13 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using VariableAnnuity;
 
-namespace VariableAnnuity.modelCore.CashflowGenerationEngine
+namespace VariableAnnuity
 {
-    public class LifePlusVACashflowGenerationEngine : BaseVACashflowGenerationEngine
+    public class LifePlusVACashflowGenerationEngine2 : BaseVACashflowGenerationEngine2
     {
-        IInterpolation WithdrawlScheule;
-        BasePolicyHolderInterpolator MortalityTable;
+        private BasePolicyHolderInterpolator MortalityTable;
+        private WithdrawlStrategy WithdrawlStrat;
         public LifePayPlusRecorder recorder;
         private List<BaseRiderBaseComputable> deathBenefitRiders;
         private LifePayPlusMGWBRider MGWBRider;
@@ -32,9 +31,8 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
         private double FeeAmount;
         private List<double> fundsReturns;
 
-        public LifePlusVACashflowGenerationEngine(BaseVariableAnnuity annuity, List<BaseReturnGenerator> returnGenerators, IInterpolation withdrawlSchedule, BasePolicyHolderInterpolator mortalityTable):base(annuity, returnGenerators)
+        public LifePlusVACashflowGenerationEngine2(ILifePayPlusVariableAnnuity annuity, List<BaseReturnGenerator> returnGenerators, IInterpolation withdrawlSchedule, BasePolicyHolderInterpolator mortalityTable, WithdrawlStrategy withdrawlStrat) : base(annuity, returnGenerators)
         {
-            WithdrawlScheule = withdrawlSchedule;
             MortalityTable = mortalityTable;
             recorder = new LifePayPlusRecorder();
             deathBenefitRiders = (from rider in annuity.Riders where rider.GetRiderTypeName() == RiderTypeNames.DeathBenefit select (BaseRiderBaseComputable)rider).ToList();
@@ -42,6 +40,7 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
             LifePlusDeathBenefitRider = (LifePayPlusDeathBenefitRider)(from rider in annuity.Riders where rider.GetRiderName() == "LifePayPlusDeathBenefitRider" select rider).ToList()[0];
             MGWBRider = (LifePayPlusMGWBRider)(from rider in annuity.Riders where rider.GetRiderTypeName() == RiderTypeNames.MGWB select rider).ToList()[0];
             FeesBase = Annuity.GetContractValue();
+            WithdrawlStrat = withdrawlStrat;
         }
 
         public override DataTable GenerateCashflowRecords()
@@ -128,10 +127,11 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
 
         private void MakeWithdrawl()
         {
-            WithdrawlAmount = WithdrawAmountStrategy();
-            CumulativeWithdrawl +=  WithdrawlAmount;
-            MaxWithdrawlRate = MGWBRider.RiderPhase == MGWRRiderPhase.GrowthPhase ? 0 :MGWBRider.MaximumAnnualWithdrawl.Interpolate(Annuity.ContractOwner.GetAge());
-            MaxWithdrawlAmount = MGWBRider.GetBaseAmount() * MaxWithdrawlRate;
+            WithdrawlAmount = WithdrawlStrat.GetWithdrawlAmount();
+            CumulativeWithdrawl += WithdrawlAmount;
+            MaxWithdrawlRate = Annuity.GetMaximumWithdrawlAllowance();
+            MaxWithdrawlAmount = Annuity.GetMaximumWithdrawlAllowance();
+
             Annuity.WithdrawDollarAmount(WithdrawlAmount);
             recorder.AddElement("Withdrawal Amount", WithdrawlAmount);
             recorder.AddFundsData(Annuity, "Post-Withdrawl");
@@ -144,12 +144,13 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
             recorder.AddElement("Rider Charges", riderCharge);
             recorder.AddFundsData(Annuity, "Post-Charges");
         }
-        
+
         private void MakeDeathPayments()
         {
             DeathPaymentAmount = DeathPaymentBase * MortalityTable.Interpolate(Annuity.ContractOwner);
             DeathClaimAmount = Math.Max(DeathPaymentAmount - Annuity.GetContractValue(), 0);
-            Annuity.Funds.DeductDollarAmount(DeathPaymentAmount);
+            //Annuity.Funds.DeductDollarAmount(DeathPaymentAmount);
+            Annuity.TakeDeathPayment(DeathPaymentAmount);
             LastPortValuePostDeathPayment = ThisPortValuePostDeathPayment;
             ThisPortValuePostDeathPayment = Annuity.GetContractValue();
             FeesBase = Annuity.GetContractValue();
@@ -159,15 +160,13 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
 
         private void RebalanceFunds(List<double> targetWeights)
         {
-            if (MGWBRider.RebalanceIndiactor)
-            {
-                Annuity.RebalanceFunds(targetWeights);
-            }
 
-            
+            Annuity.RebalanceFunds(targetWeights);
+
+
             if (Annuity.GetContractValue() > 0)
             {
-                Annuity.Funds.AddDollarAmount(1, DeathPaymentAmount);
+                //Annuity.Funds.AddDollarAmount(1, DeathPaymentAmount);
             }
             recorder.AddFundsData(Annuity, "Post-Rebalance");
         }
@@ -176,6 +175,7 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
         {
             Annuity.UpdateOnAnniversaryReached();
             DeathPaymentBase = Math.Max(RoPDeathBenefitRider.GetBaseAmount(), LifePlusDeathBenefitRider.GetBaseAmount());
+            double DeathPaymentBase2 = (from rider in deathBenefitRiders select ((IBaseComputable)rider).GetBaseAmount()).Max();
         }
 
         private void RecordRidersInfo()
@@ -192,24 +192,8 @@ namespace VariableAnnuity.modelCore.CashflowGenerationEngine
             recorder.AddElement("Withdrawl Claims", Math.Max(WithdrawlAmount - LastPortValuePostDeathPayment, 0));
             recorder.AddLifePlusPhaseIndicators(MGWBRider);
             recorder.AddFundsReturn(Annuity, fundsReturns);
-            recorder.AddBoolAsOneZeoro("Rebalance Indicatot", MGWBRider.RebalanceIndiactor);
+            recorder.AddBoolAsOneZeoro("Rebalance Indicator", MGWBRider.RebalanceIndiactor);
             recorder.AddElement("qx", MortalityTable.Interpolate(Annuity.ContractOwner));
-        }
-
-        private double WithdrawAmountStrategy()
-        {
-
-            if (MGWBRider.RiderPhase == MGWRRiderPhase.WithdrawPhase)
-            {
-                return MGWBRider.GetBaseAmount() * 0.03;
-            }
-
-            else if (MGWBRider.RiderPhase == MGWRRiderPhase.AutomaticPeriodicBenefitStatus)
-            {
-                return MGWBRider.GetBaseAmount() * WithdrawlScheule.Interpolate(Annuity.ContractOwner.GetAge());
-            }
-
-            else { return 0; }         
         }
     }
 }

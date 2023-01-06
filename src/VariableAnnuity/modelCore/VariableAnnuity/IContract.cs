@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VariableAnnuity
 {
-    internal interface IContract
+    public interface IContract
     {
         DateTime ContractDate { get; }
 

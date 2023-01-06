@@ -15,7 +15,7 @@ namespace VariableAnnuity
     {
         public LifePayPlusRecorder():base() { } 
 
-        public void AddFundsData(BaseVariableAnnuity annuity, string suffix = "")
+        public void AddFundsData(IVariableAnnuity annuity, string suffix = "")
         {
             List<(string, double)> fundsData = annuity.Funds.GetPortfolioAndFundsNameAndAmounts();
             foreach (var x in fundsData)
@@ -27,14 +27,14 @@ namespace VariableAnnuity
         public void AddLifePlusPhaseIndicators(LifePayPlusMGWBRider rider)
         {
             AddElement("Eligible Step-Up", Convert.ToInt32(rider.StepUpEligibility));
-            AddElement("Growth Phase", Convert.ToInt32(rider.RiderPhase == MGWRRidePhase.GrowthPhase));
-            AddElement("Withdrawal Phase", Convert.ToInt32(rider.RiderPhase == MGWRRidePhase.WithdrawPhase));
-            AddElement("Automatic Periodic Benefit Status", Convert.ToInt32(rider.RiderPhase == MGWRRidePhase.AutomaticPeriodicBenefitStatus));
-            AddElement("Last Death", Convert.ToInt32(rider.RiderPhase == MGWRRidePhase.LastDeath));
+            AddElement("Growth Phase", Convert.ToInt32(rider.RiderPhase == MGWRRiderPhase.GrowthPhase));
+            AddElement("Withdrawal Phase", Convert.ToInt32(rider.RiderPhase == MGWRRiderPhase.WithdrawPhase));
+            AddElement("Automatic Periodic Benefit Status", Convert.ToInt32(rider.RiderPhase == MGWRRiderPhase.AutomaticPeriodicBenefitStatus));
+            AddElement("Last Death", Convert.ToInt32(rider.RiderPhase == MGWRRiderPhase.LastDeath));
 
         }
 
-        public void AddFundsReturn(BaseVariableAnnuity annuity,  List<double> fundReturns, string suffix = "")
+        public void AddFundsReturn(IVariableAnnuity annuity,  List<double> fundReturns, string suffix = "")
         {
             List<string> fundNames = annuity.Funds.GetFundsNames();
             foreach (var x in fundNames.Zip(fundReturns, Tuple.Create))
@@ -117,10 +117,10 @@ namespace VariableAnnuity
         public void AddLifePlusPhaseIndicators(LifePayPlusMGWBRider rider)
         {
             AddBoolAsOneZeoro("Eligible Step-Up", rider.StepUpEligibility);
-            AddBoolAsOneZeoro("Growth Phase", rider.RiderPhase == MGWRRidePhase.GrowthPhase);
-            AddBoolAsOneZeoro("Withdrawal Phase", rider.RiderPhase == MGWRRidePhase.WithdrawPhase);
-            AddBoolAsOneZeoro("Automatic Periodic Benefit Status", rider.RiderPhase == MGWRRidePhase.AutomaticPeriodicBenefitStatus);
-            AddBoolAsOneZeoro("Last Death", rider.RiderPhase == MGWRRidePhase.LastDeath);
+            AddBoolAsOneZeoro("Growth Phase", rider.RiderPhase == MGWRRiderPhase.GrowthPhase);
+            AddBoolAsOneZeoro("Withdrawal Phase", rider.RiderPhase == MGWRRiderPhase.WithdrawPhase);
+            AddBoolAsOneZeoro("Automatic Periodic Benefit Status", rider.RiderPhase == MGWRRiderPhase.AutomaticPeriodicBenefitStatus);
+            AddBoolAsOneZeoro("Last Death", rider.RiderPhase == MGWRRiderPhase.LastDeath);
         }
 
         public void AddFundsReturn(BaseVariableAnnuity annuity, List<double> fundReturns, string suffix = "")

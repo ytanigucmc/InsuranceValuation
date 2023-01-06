@@ -23,6 +23,8 @@ namespace VariableAnnuity
         
         public List<BaseRider> Riders { get; protected set; }
 
+        double CumDeathPayment;
+
         public BaseVariableAnnuity(DateTime contractDate, BasePolicyHolder contractOwner, int annuityStartAge, BasePolicyHolder annuiant, double mortalityExpenseRiskCharge, double fundFees, BaseFundsPortfolio funds, List<BaseRider> riders):base(contractDate, contractOwner)
         {
             AnnuityStartAge = annuityStartAge;
@@ -34,34 +36,140 @@ namespace VariableAnnuity
             RegisterRidersForEventHandlers(riders);
         }
 
-        public abstract double GetFeeAmount();
-
-
-        public double CalculateRiderChargeAmount()
+        public BaseVariableAnnuity(DateTime contractDate, BasePolicyHolder contractOwner, int annuityStartAge, BasePolicyHolder annuiant, double mortalityExpenseRiskCharge, double fundFees, BaseFundsPortfolio funds) : base(contractDate, contractOwner)
         {
-            return GetContractValue() * (from rider in Riders select rider.GetRiderChargeRate()).ToArray().Sum();
+            AnnuityStartAge = annuityStartAge;
+            Annuiant = annuiant;
+            MortalityExpenseRiskCharge = mortalityExpenseRiskCharge;
+            FundFees = fundFees;
+            Funds = funds;
         }
 
-        public abstract void PayFee(double feeAMount);
+        public void SetRiders(List<BaseRider> riders)
+        {
+            Riders = riders;
+            RegisterRidersForEventHandlers(riders);
+        }
 
-        public abstract void PayRiderCharge(double riderChargeAmount);
+        public override double GetContractValue()
+        {
+            return Funds.GetPortfolioAmount();
+        }
 
-        public abstract void ContributeDollarAmount(double contributionAmount);
+        public virtual double GetFeeAmount()
+        {
+            return GetContractValue() * (MortalityExpenseRiskCharge + FundFees);
+        }
 
-        public abstract void WithdrawDollarAmount(double withdrawAmount);
+        public virtual double GetFeeAmount(double baseValue)
+        {
+            return baseValue * (MortalityExpenseRiskCharge + FundFees);
+        }
 
-        public abstract void RebalanceFunds(List<double> targetWeights);
+        public virtual double GetRiderChargeAmount()
+        {
+            return GetContractValue() * (from rider in Riders select rider.GetRiderChargeRate()).Sum();
+        }
 
-        public abstract void DeductPerentageAmountRiderBases(double percentage);
+        public virtual double GetRiderChargeAmount(double baseValue)
+        {
+            return baseValue * (from rider in Riders select rider.GetRiderChargeRate()).Sum();
+        }
 
-        public virtual void ApplyFundsReturns(List<double>fundReturns)
+        public virtual void PayFee(double feeAmount)
+        {
+            Funds.DeductDollarAmount(feeAmount);
+            OnFeePaid(feeAmount);
+        }
+
+        public virtual void PayRiderCharge(double chargeAmont)
+        {
+            Funds.DeductDollarAmount(chargeAmont);
+            OnRiderChargeMade(chargeAmont);
+        }
+
+
+        public virtual void ContributeDollarAmount(double contributionAmount)
+        {
+            OnContributionMade(contributionAmount);
+        }
+
+        public virtual void WithdrawDollarAmount(double withdrawAmount)
+        {
+            Funds.DeductDollarAmount(withdrawAmount);
+            OnWithdrawMade(withdrawAmount);
+        }
+
+        public virtual void TakeDeathPayment(double deathPaymentAmount)
+        {
+            Funds.DeductDollarAmount(deathPaymentAmount);
+            OnDeathPaymentTaken(deathPaymentAmount);
+        }
+
+
+        public virtual void RebalanceFunds(List<double> targetWeights)
+        {
+            Funds.Rebalance(targetWeights);
+
+        }
+
+
+
+        public virtual void DeductPerentageAmountRiderBases(double percentage)
+        {
+            foreach (BaseRider rider in Riders)
+            {
+                if (rider is IBaseComputable _rider1)
+                {
+                    _rider1.DecreaseBasePercentageAmount(percentage);
+                }
+            }
+        }
+
+        public virtual void ApplyFundsReturns(List<double> fundReturns)
         {
             Funds.ApplyReturns(fundReturns);
         }
 
+
+        public override void AgeContractByOneYear()
+        {
+
+            ContractYear += 1;
+            LastAnniversaryDate = LastAnniversaryDate.AddYears(1);
+            ContractOwner.IncrementAge(1);
+            if (!Object.ReferenceEquals(ContractOwner, Annuiant))
+            {
+                Annuiant.IncrementAge(1);
+            }
+            OnContractAgedByOneYear();
+        }
+
+        public override void UpdateOnAnniversaryReached()
+        {
+            OnAnniversaryReached();
+        }
+
+        public virtual bool IsRebalance()
+        {
+            return false;
+        }
+
+        public abstract double GetMaximumWithdrawlAllowance();
+
+        public abstract double GetMaximumWithdrawlRate();
+
+        public abstract double GetDeathPayemntAmount(double rate);
+        public abstract List<double> GetDeathBenefitBases();
+
+        public abstract List<double> GetWtihdrawlBases();
+
+
+
+
     }
 
-    public partial class BaseVariableAnnuity : BaseContract, IVariableAnnuity
+    public abstract partial class BaseVariableAnnuity : BaseContract, IVariableAnnuity
     {
         public event EventHandler<DollarAmountEventArgs> FeePaid;
 
@@ -70,6 +178,8 @@ namespace VariableAnnuity
         public event EventHandler<DollarAmountEventArgs> ContributionMade;
 
         public event EventHandler<DollarAmountEventArgs> WithdrawMade;
+
+        public event EventHandler<DollarAmountEventArgs> DeathPaymentTaken;
 
         public event EventHandler<EventArgs> AnniversaryReached;
 
@@ -99,14 +209,19 @@ namespace VariableAnnuity
                     WithdrawMade += _rider4.OnWithdrawMade;
                 }
 
-                if (rider is IAnniversaryReachedHandlable _rider5)
+                if (rider is IDeathPaymentTakenHandlable _rider5)
                 {
-                    AnniversaryReached += _rider5.OnAnniversaryReached;
+                    DeathPaymentTaken += _rider5.OnDeathPaymentTaken;
                 }
 
-                if (rider is IContractAgedByOneYearHandlable _rider6)
+                if (rider is IAnniversaryReachedHandlable _rider6)
                 {
-                    ContractAgedByOneYear += _rider6.OnContractAgedByOneYear;
+                    AnniversaryReached += _rider6.OnAnniversaryReached;
+                }
+
+                if (rider is IContractAgedByOneYearHandlable _rider7)
+                {
+                    ContractAgedByOneYear += _rider7.OnContractAgedByOneYear;
                 }
             }
         }
@@ -129,6 +244,11 @@ namespace VariableAnnuity
         protected virtual void OnWithdrawMade(double withdrwAmount)
         {
             WithdrawMade?.Invoke(this, new DollarAmountEventArgs() { DollarAmount = withdrwAmount });
+        }
+
+        protected virtual void OnDeathPaymentTaken(double deathAmount)
+        {
+            DeathPaymentTaken?.Invoke(this, new DollarAmountEventArgs() { DollarAmount = deathAmount });
         }
 
         protected virtual void OnAnniversaryReached()
